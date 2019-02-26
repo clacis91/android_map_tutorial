@@ -9,7 +9,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        resValue "string", "places_api_key", (project.findProperty("GOOGLE_API_KEY") ?: "")
+        resValue "string", "places_api_key", (project.findProperty("AIzaSyDqjrcHNDdH52OgRJEGoUl4j5iiCmNg9GY") ?: "")
     }
     buildTypes {
         release {
@@ -23,6 +23,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     implementation 'com.google.android.libraries.places:places:1.0.0'
+    implementation 'com.google.android.libraries.places:places-compat:1.0.0'
     implementation 'com.google.android.gms:play-services-maps:16.1.0'
 
     testImplementation 'junit:junit:4.12'
@@ -31,4 +32,7 @@ dependencies {
 
     implementation group: 'com.android.support', name: 'support-v4', version: '28.0.0'
     implementation group: 'com.android.support', name: 'appcompat-v7', version: '28.0.0'
+
+    compileOnly 'org.projectlombok:lombok:1.18.6'
+    annotationProcessor 'org.projectlombok:lombok:1.18.6'
 }
