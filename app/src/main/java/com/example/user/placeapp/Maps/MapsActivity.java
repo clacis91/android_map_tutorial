@@ -1,15 +1,13 @@
 package com.example.user.placeapp.Maps;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 
-import com.example.user.placeapp.Position;
+import com.example.user.placeapp.POJO.Nearby;
 import com.example.user.placeapp.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -19,28 +17,23 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.net.PlacesClient;
+//import com.google.android.libraries.places.api.Places;
+//import com.google.android.libraries.places.api.net.PlacesClient;
 
-import org.json.JSONObject;
+import java.util.ArrayList;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-
-import javax.net.ssl.HttpsURLConnection;
-
-import lombok.*;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MapsActivity extends Fragment implements OnMapReadyCallback {
-    private PlacesClient placesClient;
+    //private PlacesClient placesClient;
     private SupportMapFragment mapFragment;
     private GoogleMap mMap;
-    //private Position curPos;
     private LatLng curPos;
+    private ArrayList<Marker> placeMarkers;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,14 +52,15 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback {
         mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        Places.initialize(this.getContext(), "AIzaSyDqjr cHNDdH52OgRJEGoUl4j5iiCmNg9GY");
-        PlacesClient mplaceClient = Places.createClient(this.getContext());
+        //Places.initialize(this.getContext(), "AIzaSyDqjr cHNDdH52OgRJEGoUl4j5iiCmNg9GY");
+        //placesClient  = Places.createClient(this.getContext());
 
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        placeMarkers = new ArrayList<>();
 
         // For showing a move to my location button
         // mMap.setMyLocationEnabled(true);
@@ -97,86 +91,63 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback {
                 CameraPosition cameraPosition = new CameraPosition.Builder().target(newPos).zoom(12).build();
                 mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
+                if(placeMarkers.size() > 0) {
+                    for (int i = 0; i < placeMarkers.size(); i++) {
+                        placeMarkers.get(i).remove();
+                    }
+                    placeMarkers.clear();
+                }
+
                 String posStr = curPos.toString();
+                getNearbyResponse("restaurant");
                 //EditText curPosEditText = getActivity().findViewById(R.id.curPos);
                 //curPosEditText.setText(posStr);
-
-                AsyncTask.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Create URL
-                        try {
-                            URL geocodeURL = new URL("https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyDqjrcHNDdH52OgRJEGoUl4j5iiCmNg9GY&latlng=" + String.valueOf(curPos.latitude) + "," + String.valueOf(curPos.longitude) + "&sensor=true");
-
-                            // Create connection
-                            HttpsURLConnection myConnection = (HttpsURLConnection) geocodeURL.openConnection();
-                            // All your networking logic
-                            // should be here
-                            InputStream in = new BufferedInputStream(myConnection.getInputStream());
-                            JSONObject json = new JSONObject(getStringFromInputStream(in));
-                            Log.d("looooog", json.toString());
-                        } catch (Exception e) {
-                            Log.d("looooog", e.toString());
-                        }
-                    }
-                });
             }
         });
     }
 
-    private static String getStringFromInputStream(InputStream is) {
+    private void getNearbyResponse(String type) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://maps.googleapis.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
 
+        NearbyPlaces nearbyPlaces = retrofit.create(NearbyPlaces.class);
 
+        Call<Nearby> call = nearbyPlaces.getNearbyPlaces(String.valueOf(curPos.latitude) + "," + String.valueOf(curPos.longitude), 15000, type);
 
-        BufferedReader br = null;
-
-        StringBuilder sb = new StringBuilder();
-
-
-
-        String line;
-
-        try {
-
-
-
-            br = new BufferedReader(new InputStreamReader(is));
-
-            while ((line = br.readLine()) != null) {
-
-                sb.append(line);
-
-            }
-
-
-
-        } catch (IOException e) {
-
-            e.printStackTrace();
-
-        } finally {
-
-            if (br != null) {
-
+        call.enqueue(new Callback<Nearby>() {
+            @Override
+            public void onResponse(Call<Nearby> call, Response<Nearby> response) {
                 try {
+                    //mMap.clear();
+                    // This loop will go through all the results and add marker on each location.
+                    Log.d("onResponse", response.body().getResults().toString());
+                    for (int i = 0; i < response.body().getResults().size(); i++) {
+                        Double lat = response.body().getResults().get(i).getGeometry().getLocation().getLat();
+                        Double lng = response.body().getResults().get(i).getGeometry().getLocation().getLng();
+                        //String placeName = response.body().getResults().get(i).getName();
+                        //String vicinity = response.body().getResults().get(i).getVicinity();
+                        LatLng latlng = new LatLng(lat, lng);
 
-                    br.close();
-
-                } catch (IOException e) {
-
+                        MarkerOptions markerOptions = new MarkerOptions();
+                        // Position of Marker on Map
+                        markerOptions.position(latlng);
+                        // Adding Title to the Marker
+                        //markerOptions.title(placeName + " : " + vicinity);
+                        // Adding Marker to the Camera.
+                        Marker m = mMap.addMarker(markerOptions);
+                        placeMarkers.add(m);
+                    }
+                } catch (Exception e) {
+                    Log.d("onResponse", "There is an error");
                     e.printStackTrace();
-
                 }
-
             }
-
-        }
-
-
-
-        return sb.toString();
-
-
-
+            @Override
+            public void onFailure(Call<Nearby> call, Throwable t) {
+                Log.d("onFailure", t.toString());
+            }
+        });
     }
 }
