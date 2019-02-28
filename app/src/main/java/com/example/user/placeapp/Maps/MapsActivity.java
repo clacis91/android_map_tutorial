@@ -114,13 +114,18 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback {
 
         NearbyPlaces nearbyPlaces = retrofit.create(NearbyPlaces.class);
 
-        Call<Nearby> call = nearbyPlaces.getNearbyPlaces(String.valueOf(curPos.latitude) + "," + String.valueOf(curPos.longitude), 15000, type);
+        Call<Nearby> call = nearbyPlaces.getNearbyPlaces(String.valueOf(curPos.latitude) + "," + String.valueOf(curPos.longitude), 1500, type);
 
         call.enqueue(new Callback<Nearby>() {
             @Override
             public void onResponse(Call<Nearby> call, Response<Nearby> response) {
+                if (!response.isSuccessful()) {
+                    Log.d("response_fail", response.toString());
+                    return;
+                }
+
                 try {
-                    //mMap.clear();
+                    // 이 method는 분리
                     // This loop will go through all the results and add marker on each location.
                     Log.d("onResponse", response.body().getResults().toString());
                     for (int i = 0; i < response.body().getResults().size(); i++) {
@@ -131,11 +136,9 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback {
                         LatLng latlng = new LatLng(lat, lng);
 
                         MarkerOptions markerOptions = new MarkerOptions();
-                        // Position of Marker on Map
                         markerOptions.position(latlng);
                         // Adding Title to the Marker
                         //markerOptions.title(placeName + " : " + vicinity);
-                        // Adding Marker to the Camera.
                         Marker m = mMap.addMarker(markerOptions);
                         placeMarkers.add(m);
                     }
