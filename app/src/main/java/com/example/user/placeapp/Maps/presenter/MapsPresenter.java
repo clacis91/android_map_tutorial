@@ -1,14 +1,15 @@
 package com.example.user.placeapp.Maps.presenter;
 
+import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.example.user.placeapp.Maps.GoogleMapContract;
-import com.example.user.placeapp.Maps.NearbyPlaces;
-import com.example.user.placeapp.Maps.RetrofitClient;
 import com.example.user.placeapp.Maps.model.MapsModel;
 import com.example.user.placeapp.POJO.Nearby;
 import com.example.user.placeapp.POJO.NearbyResult;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.PlacesClient;
 
 import java.util.HashMap;
 
@@ -58,5 +59,20 @@ public class MapsPresenter implements GoogleMapContract.Presenter, GoogleMapCont
         }
 
         return responseMap;
+    }
+
+
+    @Override
+    public void getPlaceInfo(PlacesClient placesClient, String placeId) {
+        model.callPlaceInfo(this, placesClient, placeId);
+    }
+
+    @Override
+    public void onPlaceFinished(Place place, Bitmap placePhoto) {
+        view.drawPlaceInfo(place, placePhoto);
+    }
+
+    @Override
+    public void onPlaceFailure(Throwable t) {
     }
 }

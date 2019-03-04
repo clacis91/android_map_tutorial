@@ -2,19 +2,18 @@ package com.example.user.placeapp.Maps.view;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.user.placeapp.BuildConfig;
 import com.example.user.placeapp.Maps.GoogleMapContract;
 import com.example.user.placeapp.Maps.presenter.MapsPresenter;
 import com.example.user.placeapp.R;
-import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -24,22 +23,16 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.PhotoMetadata;
 import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.net.FetchPhotoRequest;
-import com.google.android.libraries.places.api.net.FetchPlaceRequest;
-import com.google.android.libraries.places.api.net.FetchPlaceResponse;
 import com.google.android.libraries.places.api.net.PlacesClient;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
+
+import afu.org.checkerframework.checker.oigj.qual.O;
 
 public class MapsActivity extends Fragment implements OnMapReadyCallback,
+                                                        GoogleMap.OnMapClickListener,
                                                         GoogleMap.OnMarkerClickListener,
                                                         GoogleMapContract.View {
     private MapsPresenter presenter;
@@ -52,6 +45,7 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
     private GoogleMap mMap;
 
     private LatLng curPos;
+    private Marker curMarker;
     private HashMap<Marker, String> placeMarkers;
 
     @Override
@@ -63,7 +57,7 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
     }
 
     @Override
-    public android.view.View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle       savedInstanceState) {
+    public android.view.View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.activity_map, container, false);
     }
 
@@ -88,7 +82,8 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
         // mMap.setMyLocationEnabled(true);
 
         LatLng seoul = new LatLng(37.576208, 126.976818);
-        mMap.addMarker(new MarkerOptions().position(seoul).draggable(true)).setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+        curMarker = mMap.addMarker(new MarkerOptions().position(seoul).draggable(true));
+        curMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
         CameraPosition cameraPosition = new CameraPosition.Builder().target(seoul).zoom(16).build();
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
@@ -108,7 +103,7 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
             public void onMarkerDragEnd(Marker marker) {
                 LatLng newPos = new LatLng(marker.getPosition().latitude, marker.getPosition().longitude);
                 curPos = newPos;
-                CameraPosition cameraPosition = new CameraPosition.Builder().target(newPos).zoom(16).build();
+                CameraPosition cameraPosition = new CameraPosition.Builder().target(curPos).zoom(16).build();
                 mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
                 for(Marker m : placeMarkers.keySet()) {
@@ -119,7 +114,23 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
             }
         });
 
+        mMap.setOnMapClickListener(this);
         mMap.setOnMarkerClickListener(this);
+    }
+
+    @Override
+    public void onMapClick(LatLng latlng) {
+
+        curPos = latlng;
+        curMarker.setPosition(latlng);
+        CameraPosition cameraPosition = new CameraPosition.Builder().target(curPos).zoom(16).build();
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+        for(Marker m : placeMarkers.keySet()) {
+            m.remove();
+        }
+        placeMarkers.clear();
+        getNearbyResponse("museum");
     }
 
     private void getNearbyResponse(String type) {
@@ -144,64 +155,24 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
         String clickedMarkerId = marker.getId();
         for(Marker m : placeMarkers.keySet()){
             if(clickedMarkerId.equals(m.getId())) {
-                getPlaceDetail(placeMarkers.get(m));
+                getPlaceInfo(placeMarkers.get(m));
             }
         }
 
         return true;
     }
 
-    private void getPlaceDetail(String placeId) {
-        EditText curPosEditText = getActivity().findViewById(R.id.curPos);
+    private void getPlaceInfo(String placeId) {
 
-        List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME, Place.Field.PHOTO_METADATAS);
-        FetchPlaceRequest placeRequest = FetchPlaceRequest.builder(placeId, placeFields).build();
-        Task<FetchPlaceResponse> placeTask = placesClient.fetchPlace(placeRequest);
-
-        placeTask.addOnSuccessListener(new OnSuccessListener<FetchPlaceResponse>() {
-            @Override
-            public void onSuccess(FetchPlaceResponse fetchPlaceResponse) {
-                //responseView.setText(StringUtil.stringify(response, isDisplayRawResultsChecked()));
-                // if (isFetchPhotoChecked) {
-                Place res_place = fetchPlaceResponse.getPlace();
-                curPosEditText.setText(res_place.getName());
-                getPlacePhoto(res_place);
-            }
-        });
-
-        placeTask.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d("fetchPlace_res: ", "FAIL");
-                e.printStackTrace();
-            }
-        });
+        presenter.getPlaceInfo(placesClient, placeId);
     }
 
-    private void getPlacePhoto(Place place) {
-        // Get the photo metadata.
-        PhotoMetadata photoMetadata = place.getPhotoMetadatas().get(0);
-
-        // Get the attribution text.
-        String attributions = photoMetadata.getAttributions();
-
-        // Create a FetchPhotoRequest.
-        FetchPhotoRequest photoRequest = FetchPhotoRequest.builder(photoMetadata)
-                .setMaxWidth(800) // Optional.
-                .setMaxHeight(600) // Optional.
-                .build();
-
-        placesClient.fetchPhoto(photoRequest).addOnSuccessListener((fetchPhotoResponse) -> {
-            Log.d("fetchphoto: ", "SUCCESS");
-            Bitmap bitmap = fetchPhotoResponse.getBitmap();
-            photoView.setImageBitmap(bitmap);
-        }).addOnFailureListener((exception) -> {
-            if (exception instanceof ApiException) {
-                ApiException apiException = (ApiException) exception;
-                int statusCode = apiException.getStatusCode();
-                // Handle error with given status code.
-                Log.d("fetchphoto", "Place not found: " + exception.getMessage());
-            }
-        });
+    @Override
+    public void drawPlaceInfo(Place place, Bitmap placePhoto) {
+        TextView placeNameTextView = getActivity().findViewById(R.id.placeName);
+        placeNameTextView.setText(place.getName());
+        TextView placeAddressTextView = getActivity().findViewById(R.id.placeAddress);
+        placeAddressTextView.setText(place.getAddress());
+        photoView.setImageBitmap(placePhoto);
     }
 }
