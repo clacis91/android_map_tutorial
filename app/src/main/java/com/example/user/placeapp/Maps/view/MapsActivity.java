@@ -60,19 +60,14 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback, Google
     private MainPresenter presenter;
 
     @Override
-    public void drawMarker(List<LatLng> list) {
-        for(int i=0;i<list.size();i++){
+    public void drawMarker(HashMap<LatLng,String> responseMap) {
+
+        for(LatLng latLng : responseMap.keySet()){
             MarkerOptions markerOptions = new MarkerOptions();
-            markerOptions.position(list.get(i));
-//                        // Adding Title to the Marker
-            //markerOptions.title();
+            markerOptions.position(latLng);
             Marker marker = mMap.addMarker(markerOptions);
-//
-//
-//                        placeMarkers.put(marker, markerPlaceId);
-
+            placeMarkers.put(marker,responseMap.get(latLng));
         }
-
     }
 
     @Override

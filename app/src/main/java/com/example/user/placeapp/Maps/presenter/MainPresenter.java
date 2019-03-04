@@ -7,8 +7,11 @@ import com.example.user.placeapp.Maps.NearbyPlaces;
 import com.example.user.placeapp.Maps.RetrofitClient;
 import com.example.user.placeapp.POJO.Nearby;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import retrofit2.Call;
@@ -44,7 +47,8 @@ public class MainPresenter implements GoogleMapTutorial.GoogleMapPresenter {
                 try {
                     // 이 method는 분리
 
-                    List<LatLng> list = new ArrayList<>();
+                    //List<LatLng> list = new ArrayList<>();
+                    HashMap<LatLng,String> map = new HashMap<>();
                     // This loop will go through all the results and add marker on each location.
                     for (int i = 0; i < response.body().getResults().size(); i++) {
                         Double lat = response.body().getResults().get(i).getGeometry().getLocation().getLat();
@@ -53,20 +57,10 @@ public class MainPresenter implements GoogleMapTutorial.GoogleMapPresenter {
 
                         LatLng latlng = new LatLng(lat, lng);
 
+                        map.put(latlng,markerPlaceId);
 
-//                        list.add(latlng);
-//
-////
-////                        //
-//                        MarkerOptions markerOptions = new MarkerOptions();
-//                        markerOptions.position(latlng);
-//                        // Adding Title to the Marker
-//                        //markerOptions.title(placeName + " : " + vicinity);
-//                        Marker marker = mMap.addMarker(markerOptions);
-//
-//
-//                        placeMarkers.put(marker, markerPlaceId);
-                        view.drawMarker(list);
+
+                        view.drawMarker(map);
                     }
                 } catch (Exception e) {
                     Log.d("onResponse", "There is an error");
