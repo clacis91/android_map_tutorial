@@ -2,6 +2,7 @@ package com.example.user.placeapp.Maps;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.example.user.placeapp.BuildConfig;
 import com.example.user.placeapp.POJO.Nearby;
 import com.example.user.placeapp.R;
 import com.google.android.gms.common.api.ApiException;
@@ -17,10 +19,13 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.PhotoMetadata;
@@ -47,9 +52,7 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback, Google
     private LatLng curPos;
     private HashMap<Marker, String> placeMarkers;
     private ImageView photoView;
-    //private ArrayList<Marker> placeMarkers;
-    //private ArrayList<HashMap<Marker, String>> placeMarkers;
-    //private HashMap<String, Marker> placeMarkers;
+    private String googleApiKey;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -64,14 +67,14 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback, Google
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        googleApiKey = BuildConfig.ApiKey;
 
         mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
         photoView = getActivity().findViewById(R.id.placePhoto);
 
-        Places.initialize(getContext(), "AIzaSyDqjrcHNDdH52OgRJEGoUl4j5iiCmNg9GY");
-        //Places.initialize(this.getContext(), "AIzaSyDqjrcHNDdH52OgRJEGoUl4j5iiCmNg9GY");
+        Places.initialize(getContext(), googleApiKey);
         placesClient = Places.createClient(this.getContext());
     }
 
@@ -83,14 +86,13 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback, Google
         // For showing a move to my location button
         // mMap.setMyLocationEnabled(true);
 
-        // For dropping a marker at a point on the Map
-        //LatLng sydney = new LatLng(-34, 151);
-        LatLng sydney = new LatLng(37.576208, 126.976818);
-        //Marker marker = new Marker();
-        mMap.addMarker(new MarkerOptions().position(sydney).draggable(true));
-        // For zooming automatically to the location of the marker
-        CameraPosition cameraPosition = new CameraPosition.Builder().target(sydney).zoom(12).build();
+        LatLng seoul = new LatLng(37.576208, 126.976818);
+        mMap.addMarker(new MarkerOptions().position(seoul).draggable(true)).setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+        CameraPosition cameraPosition = new CameraPosition.Builder().target(seoul).zoom(16).build();
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+        curPos = seoul;
+        getNearbyResponse("museum");
 
         mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
             @Override
@@ -105,7 +107,7 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback, Google
             public void onMarkerDragEnd(Marker marker) {
                 LatLng newPos = new LatLng(marker.getPosition().latitude, marker.getPosition().longitude);
                 curPos = newPos;
-                CameraPosition cameraPosition = new CameraPosition.Builder().target(newPos).zoom(12).build();
+                CameraPosition cameraPosition = new CameraPosition.Builder().target(newPos).zoom(16).build();
                 mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
                 for(Marker m : placeMarkers.keySet()) {
@@ -127,7 +129,7 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback, Google
 
         NearbyPlaces nearbyPlaces = retrofit.create(NearbyPlaces.class);
 
-        Call<Nearby> call = nearbyPlaces.getNearbyPlaces(String.valueOf(curPos.latitude) + "," + String.valueOf(curPos.longitude), 1500, type);
+        Call<Nearby> call = nearbyPlaces.getNearbyPlaces(String.valueOf(curPos.latitude) + "," + String.valueOf(curPos.longitude), 1000, type, googleApiKey);
 
         call.enqueue(new Callback<Nearby>() {
             @Override
@@ -140,12 +142,10 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback, Google
                 try {
                     // 이 method는 분리
                     // This loop will go through all the results and add marker on each location.
-                    Log.d("onResponse", response.body().getResults().toString());
                     for (int i = 0; i < response.body().getResults().size(); i++) {
                         Double lat = response.body().getResults().get(i).getGeometry().getLocation().getLat();
                         Double lng = response.body().getResults().get(i).getGeometry().getLocation().getLng();
                         String markerPlaceId = response.body().getResults().get(i).getPlaceId();
-                        Log.d("searched_markers", markerPlaceId);
 
                         LatLng latlng = new LatLng(lat, lng);
 
@@ -182,30 +182,31 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback, Google
 
     private void fetchPlace(String placeId) {
         EditText curPosEditText = getActivity().findViewById(R.id.curPos);
-        curPosEditText.setText(placeId);
 
-        List<Place.Field> placeFields = Arrays.asList(Place.Field.PHOTO_METADATAS);
-        //FetchPlaceRequest request = FetchPlaceRequest.newInstance(placeId, placeFields);
+        List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME, Place.Field.PHOTO_METADATAS);
         FetchPlaceRequest placeRequest = FetchPlaceRequest.builder(placeId, placeFields).build();
         Task<FetchPlaceResponse> placeTask = placesClient.fetchPlace(placeRequest);
 
         Log.d("fetchPlace: ", "SUCCESS");
 
-        placeTask.addOnSuccessListener(
-                (response) -> {
-                    //responseView.setText(StringUtil.stringify(response, isDisplayRawResultsChecked()));
-                    //if (isFetchPhotoChecked) {
-                    Log.d("fetchPlace_res: ", "SUCCESS");
-                    fetchPhoto(response.getPlace());
-                    //}
-                });
+        placeTask.addOnSuccessListener(new OnSuccessListener<FetchPlaceResponse>() {
+            @Override
+            public void onSuccess(FetchPlaceResponse fetchPlaceResponse) {
+                //responseView.setText(StringUtil.stringify(response, isDisplayRawResultsChecked()));
+                // if (isFetchPhotoChecked) {
+                Place res_place = fetchPlaceResponse.getPlace();
+                curPosEditText.setText(res_place.getName());
+                fetchPhoto(res_place);
+            }
+        });
 
-        placeTask.addOnFailureListener(
-                (exception) -> {
-                    Log.d("fetchPlace_res: ", "FAIL");
-                    exception.printStackTrace();
-                    //responseView.setText(exception.getMessage());
-                });
+        placeTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d("fetchPlace_res: ", "FAIL");
+                e.printStackTrace();
+            }
+        });
     }
 
     private void fetchPhoto(Place place) {
@@ -217,8 +218,8 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback, Google
 
         // Create a FetchPhotoRequest.
         FetchPhotoRequest photoRequest = FetchPhotoRequest.builder(photoMetadata)
-                .setMaxWidth(300) // Optional.
-                .setMaxHeight(300) // Optional.
+                .setMaxWidth(800) // Optional.
+                .setMaxHeight(600) // Optional.
                 .build();
 
         placesClient.fetchPhoto(photoRequest).addOnSuccessListener((fetchPhotoResponse) -> {
@@ -233,23 +234,5 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback, Google
                 Log.d("fetchphoto", "Place not found: " + exception.getMessage());
             }
         });
-
-        /*
-        Task<FetchPhotoResponse> photoTask = placesClient.fetchPhoto(photoRequestBuilder.build());
-
-        photoTask.addOnSuccessListener(
-                response -> {
-                    photoView.setImageBitmap(response.getBitmap());
-                    StringUtil.prepend(responseView, StringUtil.stringify(response.getBitmap()));
-                });
-
-        photoTask.addOnFailureListener(
-                exception -> {
-                    exception.printStackTrace();
-                    StringUtil.prepend(responseView, "Photo: " + exception.getMessage());
-                });
-
-        photoTask.addOnCompleteListener(response -> setLoading(false));
-        */
     }
 }
