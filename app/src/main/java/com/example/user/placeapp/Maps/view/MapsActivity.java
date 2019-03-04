@@ -1,4 +1,4 @@
-package com.example.user.placeapp.Maps;
+package com.example.user.placeapp.Maps.view;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.example.user.placeapp.BuildConfig;
+import com.example.user.placeapp.Maps.NearbyPlaces;
 import com.example.user.placeapp.POJO.Nearby;
 import com.example.user.placeapp.R;
 import com.google.android.gms.common.api.ApiException;
