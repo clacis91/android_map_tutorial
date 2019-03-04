@@ -55,4 +55,6 @@ public class NearbyResult {
     public void setGeometry(Geometry geometry) {
         this.geometry = geometry;
     }
+
+    public String getPlaceId() { return placeId; }
 }

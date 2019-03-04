@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * TODO : Layout 분할 (좌측 : Place API info / 우측 : History)
+     * TODO :
      * Google map marker -> Place API 연동
      *          1. marker 좌표 얻는 기능 (map fragment상에서 구현) - O
      *          2. marker 정보 main activity로 전달 - O
