@@ -12,7 +12,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.example.user.placeapp.BuildConfig;
+import com.example.user.placeapp.Maps.GoogleMapTutorial;
 import com.example.user.placeapp.Maps.NearbyPlaces;
+import com.example.user.placeapp.Maps.presenter.MainPresenter;
 import com.example.user.placeapp.POJO.Nearby;
 import com.example.user.placeapp.R;
 import com.google.android.gms.common.api.ApiException;
@@ -46,7 +48,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class MapsActivity extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+public class MapsActivity extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleMapTutorial.GoogleMapView {
     private PlacesClient placesClient;
     private SupportMapFragment mapFragment;
     private GoogleMap mMap;
@@ -55,9 +57,28 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback, Google
     private ImageView photoView;
     private String googleApiKey;
 
+    private MainPresenter presenter;
+
+    @Override
+    public void drawMarker(List<LatLng> list) {
+        for(int i=0;i<list.size();i++){
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(list.get(i));
+//                        // Adding Title to the Marker
+            //markerOptions.title();
+            Marker marker = mMap.addMarker(markerOptions);
+//
+//
+//                        placeMarkers.put(marker, markerPlaceId);
+
+        }
+
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        presenter = new MainPresenter(this);
     }
 
     @Override
@@ -123,50 +144,9 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback, Google
     }
 
     private void getNearbyResponse(String type) {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://maps.googleapis.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
 
-        NearbyPlaces nearbyPlaces = retrofit.create(NearbyPlaces.class);
 
-        Call<Nearby> call = nearbyPlaces.getNearbyPlaces(String.valueOf(curPos.latitude) + "," + String.valueOf(curPos.longitude), 1000, type, googleApiKey);
-
-        call.enqueue(new Callback<Nearby>() {
-            @Override
-            public void onResponse(Call<Nearby> call, Response<Nearby> response) {
-                if (!response.isSuccessful()) {
-                    Log.d("response_fail", response.toString());
-                    return;
-                }
-
-                try {
-                    // 이 method는 분리
-                    // This loop will go through all the results and add marker on each location.
-                    for (int i = 0; i < response.body().getResults().size(); i++) {
-                        Double lat = response.body().getResults().get(i).getGeometry().getLocation().getLat();
-                        Double lng = response.body().getResults().get(i).getGeometry().getLocation().getLng();
-                        String markerPlaceId = response.body().getResults().get(i).getPlaceId();
-
-                        LatLng latlng = new LatLng(lat, lng);
-
-                        MarkerOptions markerOptions = new MarkerOptions();
-                        markerOptions.position(latlng);
-                        // Adding Title to the Marker
-                        //markerOptions.title(placeName + " : " + vicinity);
-                        Marker marker = mMap.addMarker(markerOptions);
-                        placeMarkers.put(marker, markerPlaceId);
-                    }
-                } catch (Exception e) {
-                    Log.d("onResponse", "There is an error");
-                    e.printStackTrace();
-                }
-            }
-            @Override
-            public void onFailure(Call<Nearby> call, Throwable t) {
-                Log.d("onFailure", t.toString());
-            }
-        });
+        presenter.getNearby(curPos,type,googleApiKey);
     }
 
     @Override
