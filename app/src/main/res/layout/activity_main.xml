@@ -26,7 +26,13 @@
             android:layout_height="0px"
             android:layout_weight="1"
             android:layout_width="match_parent"
+            android:orientation="vertical"
             android:gravity="center">
+
+            <ImageView
+                android:id="@+id/placePhoto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
             <EditText
                 android:id="@+id/curPos"
