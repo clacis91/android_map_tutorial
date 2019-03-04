@@ -6,16 +6,13 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.example.user.placeapp.BuildConfig;
-import com.example.user.placeapp.Maps.GoogleMapTutorial;
-import com.example.user.placeapp.Maps.NearbyPlaces;
-import com.example.user.placeapp.Maps.presenter.MainPresenter;
-import com.example.user.placeapp.POJO.Nearby;
+import com.example.user.placeapp.Maps.GoogleMapContract;
+import com.example.user.placeapp.Maps.presenter.MapsPresenter;
 import com.example.user.placeapp.R;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -42,49 +39,37 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+public class MapsActivity extends Fragment implements OnMapReadyCallback,
+                                                        GoogleMap.OnMarkerClickListener,
+                                                        GoogleMapContract.View {
+    private MapsPresenter presenter;
 
-public class MapsActivity extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleMapTutorial.GoogleMapView {
-    private PlacesClient placesClient;
     private SupportMapFragment mapFragment;
-    private GoogleMap mMap;
-    private LatLng curPos;
-    private HashMap<Marker, String> placeMarkers;
     private ImageView photoView;
     private String googleApiKey;
 
-    private MainPresenter presenter;
+    private PlacesClient placesClient;
+    private GoogleMap mMap;
 
-    @Override
-    public void drawMarker(HashMap<LatLng,String> responseMap) {
-
-        for(LatLng latLng : responseMap.keySet()){
-            MarkerOptions markerOptions = new MarkerOptions();
-            markerOptions.position(latLng);
-            Marker marker = mMap.addMarker(markerOptions);
-            placeMarkers.put(marker,responseMap.get(latLng));
-        }
-    }
+    private LatLng curPos;
+    private HashMap<Marker, String> placeMarkers;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        presenter = new MainPresenter(this);
+        presenter = new MapsPresenter(this);
+        googleApiKey = BuildConfig.ApiKey;
+        placeMarkers = new HashMap<>();
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle       savedInstanceState) {
+    public android.view.View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle       savedInstanceState) {
         return inflater.inflate(R.layout.activity_map, container, false);
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        googleApiKey = BuildConfig.ApiKey;
 
         mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -98,7 +83,6 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback, Google
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        placeMarkers = new HashMap<>();
 
         // For showing a move to my location button
         // mMap.setMyLocationEnabled(true);
@@ -140,30 +124,39 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback, Google
 
     private void getNearbyResponse(String type) {
 
+        presenter.getNearby(curPos, type, googleApiKey);
+    }
 
-        presenter.getNearby(curPos,type,googleApiKey);
+    @Override
+    public void drawMarker(HashMap<LatLng,String> responseMap) {
+
+        for(LatLng latlng : responseMap.keySet()){
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(latlng);
+            Marker marker = mMap.addMarker(markerOptions);
+            placeMarkers.put(marker,responseMap.get(latlng));
+        }
     }
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        String clicked_marker_id = marker.getId();
+
+        String clickedMarkerId = marker.getId();
         for(Marker m : placeMarkers.keySet()){
-            if(clicked_marker_id.equals(m.getId())) {
-                fetchPlace(placeMarkers.get(m));
+            if(clickedMarkerId.equals(m.getId())) {
+                getPlaceDetail(placeMarkers.get(m));
             }
         }
 
         return true;
     }
 
-    private void fetchPlace(String placeId) {
+    private void getPlaceDetail(String placeId) {
         EditText curPosEditText = getActivity().findViewById(R.id.curPos);
 
         List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME, Place.Field.PHOTO_METADATAS);
         FetchPlaceRequest placeRequest = FetchPlaceRequest.builder(placeId, placeFields).build();
         Task<FetchPlaceResponse> placeTask = placesClient.fetchPlace(placeRequest);
-
-        Log.d("fetchPlace: ", "SUCCESS");
 
         placeTask.addOnSuccessListener(new OnSuccessListener<FetchPlaceResponse>() {
             @Override
@@ -172,7 +165,7 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback, Google
                 // if (isFetchPhotoChecked) {
                 Place res_place = fetchPlaceResponse.getPlace();
                 curPosEditText.setText(res_place.getName());
-                fetchPhoto(res_place);
+                getPlacePhoto(res_place);
             }
         });
 
@@ -185,7 +178,7 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback, Google
         });
     }
 
-    private void fetchPhoto(Place place) {
+    private void getPlacePhoto(Place place) {
         // Get the photo metadata.
         PhotoMetadata photoMetadata = place.getPhotoMetadatas().get(0);
 
