@@ -3,10 +3,8 @@ package com.example.user.placeapp.Maps.view;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -33,8 +31,6 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 
 import java.util.Arrays;
 import java.util.HashMap;
-
-import afu.org.checkerframework.checker.oigj.qual.O;
 
 public class MapsActivity extends Fragment implements OnMapReadyCallback,
                                                         GoogleMap.OnMapClickListener,
@@ -75,26 +71,24 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
 
         photoView = getActivity().findViewById(R.id.placePhoto);
 
+        Places.initialize(getContext(), googleApiKey);
+        placesClient = Places.createClient(this.getContext());
+
         MainActivity mainActivity = (MainActivity) getActivity();
-        AutocompleteSupportFragment autocompleteFragment = mainActivity.getAutocompleteSupportFragment();
+        AutocompleteSupportFragment autocompleteFragment = mainActivity.getAutocompleteFragment();
         // Specify the types of place data to return.
-        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
+        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.LAT_LNG));
         // Set up a PlaceSelectionListener to handle the response.
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
-                // TODO: Get info about the selected place.
+                moveCurPosition(place.getLatLng());
             }
 
             @Override
             public void onError(Status status) {
-                // TODO: Handle the error.
             }
         });
-
-
-        Places.initialize(getContext(), googleApiKey);
-        placesClient = Places.createClient(this.getContext());
     }
 
     @Override
@@ -105,6 +99,7 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
         // mMap.setMyLocationEnabled(true);
 
         LatLng seoul = new LatLng(37.576208, 126.976818);
+        curPos = seoul;
         curMarker = mMap.addMarker(new MarkerOptions().position(seoul).draggable(true));
         curMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
         moveCamera(seoul);
@@ -140,6 +135,10 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onMapClick(LatLng latlng) {
+        moveCurPosition(latlng);
+    }
+
+    private void moveCurPosition(LatLng latlng) {
         curPos = latlng;
         curMarker.setPosition(latlng);
         moveCamera(curPos);
@@ -156,7 +155,7 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
     }
 
     @Override
-    public void drawNearbyMarker(HashMap<LatLng,String> responseMap) {
+    public void drawMarker(HashMap<LatLng,String> responseMap) {
         for(LatLng latlng : responseMap.keySet()){
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(latlng);
