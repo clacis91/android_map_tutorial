@@ -11,9 +11,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.user.placeapp.BuildConfig;
+import com.example.user.placeapp.MainActivity;
 import com.example.user.placeapp.Maps.GoogleMapContract;
 import com.example.user.placeapp.Maps.presenter.MapsPresenter;
 import com.example.user.placeapp.R;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -26,7 +28,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import afu.org.checkerframework.checker.oigj.qual.O;
@@ -70,6 +75,24 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
 
         photoView = getActivity().findViewById(R.id.placePhoto);
 
+        MainActivity mainActivity = (MainActivity) getActivity();
+        AutocompleteSupportFragment autocompleteFragment = mainActivity.getAutocompleteSupportFragment();
+        // Specify the types of place data to return.
+        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
+        // Set up a PlaceSelectionListener to handle the response.
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                // TODO: Get info about the selected place.
+            }
+
+            @Override
+            public void onError(Status status) {
+                // TODO: Handle the error.
+            }
+        });
+
+
         Places.initialize(getContext(), googleApiKey);
         placesClient = Places.createClient(this.getContext());
     }
@@ -84,10 +107,8 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
         LatLng seoul = new LatLng(37.576208, 126.976818);
         curMarker = mMap.addMarker(new MarkerOptions().position(seoul).draggable(true));
         curMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
-        CameraPosition cameraPosition = new CameraPosition.Builder().target(seoul).zoom(16).build();
-        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        moveCamera(seoul);
 
-        curPos = seoul;
         getNearbyResponse("museum");
 
         mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
@@ -103,8 +124,7 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
             public void onMarkerDragEnd(Marker marker) {
                 LatLng newPos = new LatLng(marker.getPosition().latitude, marker.getPosition().longitude);
                 curPos = newPos;
-                CameraPosition cameraPosition = new CameraPosition.Builder().target(curPos).zoom(16).build();
-                mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                moveCamera(curPos);
 
                 for(Marker m : placeMarkers.keySet()) {
                     m.remove();
@@ -120,11 +140,9 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onMapClick(LatLng latlng) {
-
         curPos = latlng;
         curMarker.setPosition(latlng);
-        CameraPosition cameraPosition = new CameraPosition.Builder().target(curPos).zoom(16).build();
-        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        moveCamera(curPos);
 
         for(Marker m : placeMarkers.keySet()) {
             m.remove();
@@ -134,13 +152,11 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
     }
 
     private void getNearbyResponse(String type) {
-
         presenter.getNearby(curPos, type, googleApiKey);
     }
 
     @Override
-    public void drawMarker(HashMap<LatLng,String> responseMap) {
-
+    public void drawNearbyMarker(HashMap<LatLng,String> responseMap) {
         for(LatLng latlng : responseMap.keySet()){
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(latlng);
@@ -151,7 +167,6 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-
         String clickedMarkerId = marker.getId();
         for(Marker m : placeMarkers.keySet()){
             if(clickedMarkerId.equals(m.getId())) {
@@ -163,7 +178,6 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
     }
 
     private void getPlaceInfo(String placeId) {
-
         presenter.getPlaceInfo(placesClient, placeId);
     }
 
@@ -174,5 +188,10 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
         TextView placeAddressTextView = getActivity().findViewById(R.id.placeAddress);
         placeAddressTextView.setText(place.getAddress());
         photoView.setImageBitmap(placePhoto);
+    }
+
+    private void moveCamera(LatLng position) {
+        CameraPosition cameraPosition = new CameraPosition.Builder().target(position).zoom(16).build();
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 }
