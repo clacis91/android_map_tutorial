@@ -25,6 +25,7 @@ public interface GoogleMapContract {
 
         public void callNearby(OnFinishedListener onFinishedListener, LatLng curPos, String type, String googleApiKey);
         public void callPlaceInfo(OnFinishedListener onFinishedListener, PlacesClient placesClient, String placeId);
+        public void callGeocode();
         //public void callPhoto(PlacesClient placesClient, Place place);
     }
 

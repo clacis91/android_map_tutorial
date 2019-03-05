@@ -27,7 +27,8 @@ public class MapsPresenter implements GoogleMapContract.Presenter, GoogleMapCont
 
     @Override
     public void getNearby(LatLng curPos, String type, String googleApiKey) {
-        model.callNearby(this, curPos, type, googleApiKey);
+        model.callGeocode();
+        //model.callNearby(this, curPos, type, googleApiKey);
     }
 
     @Override

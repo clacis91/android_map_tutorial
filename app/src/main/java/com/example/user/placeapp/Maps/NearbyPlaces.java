@@ -8,8 +8,6 @@ import retrofit2.http.GET;
 import retrofit2.http.Query;
 
 public interface NearbyPlaces {
-    //String google_api_key = BuildConfig.ApiKey;
-    //@GET("maps/api/place/nearbysearch/json?key=AIzaSyDN7RJFmImYAca96elyZlE5s_fhX-MMuhk")
     @GET("maps/api/place/nearbysearch/json")
     Call<Nearby> getNearbyPlaces(
             @Query("location") String location,
