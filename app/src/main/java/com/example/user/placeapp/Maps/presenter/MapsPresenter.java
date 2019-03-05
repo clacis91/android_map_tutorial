@@ -1,7 +1,6 @@
 package com.example.user.placeapp.Maps.presenter;
 
 import android.graphics.Bitmap;
-import android.util.Log;
 
 import com.example.user.placeapp.Maps.GoogleMapContract;
 import com.example.user.placeapp.Maps.model.MapsModel;
@@ -13,8 +12,6 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 
 import java.util.HashMap;
 
-import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MapsPresenter implements GoogleMapContract.Presenter, GoogleMapContract.Model.OnFinishedListener {
@@ -37,7 +34,7 @@ public class MapsPresenter implements GoogleMapContract.Presenter, GoogleMapCont
     public void onNearbyFinished(Response<Nearby> response) {
 
         HashMap<LatLng,String> responseMap = getDataForMarker(response);
-        view.drawMarker(responseMap);
+        view.drawNearbyMarker(responseMap);
     }
 
     @Override

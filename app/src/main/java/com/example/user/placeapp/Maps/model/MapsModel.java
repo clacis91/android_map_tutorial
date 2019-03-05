@@ -65,10 +65,15 @@ public class MapsModel implements GoogleMapContract.Model {
         placeTask.addOnSuccessListener(new OnSuccessListener<FetchPlaceResponse>() {
             @Override
             public void onSuccess(FetchPlaceResponse fetchPlaceResponse) {
-                // if (isFetchPhotoChecked) {
                 Place res_place = fetchPlaceResponse.getPlace();
-                callPhoto(onFinishedListener, placesClient, res_place);
-                //}
+                List<PhotoMetadata> photoMetadatas = res_place.getPhotoMetadatas();
+
+                if (photoMetadatas != null && !photoMetadatas.isEmpty()) {
+                    callPhoto(onFinishedListener, placesClient, res_place);
+                }
+                else {
+                    onFinishedListener.onPlaceFinished(res_place, null);
+                }
             }
         });
 

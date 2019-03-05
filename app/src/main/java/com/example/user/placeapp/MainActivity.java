@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.replace(R.id.mapLayout, new MapsActivity()).commit();
     }
 
-    public AutocompleteSupportFragment getAutocompleteSupportFragment() {
+    public AutocompleteSupportFragment getAutocompleteFragment() {
         return autocompleteFragment;
     }
 

@@ -37,7 +37,7 @@ public interface GoogleMapContract {
 
     interface View {
 
-         public void drawMarker(HashMap<LatLng,String> list);
+         public void drawNearbyMarker(HashMap<LatLng,String> list);
          public void drawPlaceInfo(Place place, Bitmap placePhoto);
     }
 }
