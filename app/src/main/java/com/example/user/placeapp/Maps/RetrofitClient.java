@@ -2,14 +2,16 @@ package com.example.user.placeapp.Maps;
 
 import java.net.URL;
 
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.http.Url;
 
 public class RetrofitClient {
 
     static private RetrofitClient instance;
-    private Retrofit retrofit;
+    protected Retrofit.Builder retrofitBuilder;
+    //private Retrofit retrofit;
 
     static public RetrofitClient getInstance(){
         synchronized (RetrofitClient.class){
@@ -20,17 +22,36 @@ public class RetrofitClient {
         }
         return instance;
     }
-    public Retrofit getRetrofit(URL baseurl){
+
+    public void setBaseurl(URL baseurl){
         synchronized (RetrofitClient.class){
-            if(retrofit == null){
-                retrofit = new Retrofit.Builder()
-                        .baseUrl(baseurl.toString())
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
-
+            if(retrofitBuilder == null){
+                retrofitBuilder = new Retrofit.Builder();
             }
+            retrofitBuilder.baseUrl(baseurl.toString())
+                    .addConverterFactory(GsonConverterFactory.create());
         }
+    }
 
-        return retrofit;
+    public void setInterceptor(Interceptor interceptor){
+        synchronized (RetrofitClient.class){
+            OkHttpClient.Builder builder = new OkHttpClient.Builder();
+            builder.interceptors().add(interceptor);
+            OkHttpClient okHttpClientclient = builder.build();
+
+            if(retrofitBuilder == null){
+                retrofitBuilder = new Retrofit.Builder();
+            }
+            retrofitBuilder.client(okHttpClientclient);
+        }
+    }
+
+    public Retrofit getRetrofit() {
+        synchronized (RetrofitClient.class) {
+            //if (retrofitBuilder != null) {
+                return retrofitBuilder.build();
+            //}
+            // TODO: Append Exception
+        }
     }
 }

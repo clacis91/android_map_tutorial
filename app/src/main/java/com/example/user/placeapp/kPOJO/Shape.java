@@ -12,7 +12,7 @@ public class Shape {
     private String type;
     @SerializedName("coordinates")
     @Expose
-    private List<List<List<Integer>>> coordinates = null;
+    private List<List<List<List<Double>>>> coordinates = null;
 
     public String getType() {
         return type;
@@ -22,11 +22,11 @@ public class Shape {
         this.type = type;
     }
 
-    public List<List<List<Integer>>> getCoordinates() {
+    public List<List<List<List<Double>>>> getCoordinates() {
         return coordinates;
     }
 
-    public void setCoordinates(List<List<List<Integer>>> coordinates) {
+    public void setCoordinates(List<List<List<List<Double>>>> coordinates) {
         this.coordinates = coordinates;
     }
 

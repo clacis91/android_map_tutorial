@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.example.user.placeapp.BuildConfig;
 import com.example.user.placeapp.MainActivity;
+import com.example.user.placeapp.Maps.GISmanager;
 import com.example.user.placeapp.Maps.GoogleMapContract;
 import com.example.user.placeapp.Maps.presenter.MapsPresenter;
 import com.example.user.placeapp.R;
@@ -75,6 +76,8 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
 
         Places.initialize(getContext(), googleApiKey);
         placesClient = Places.createClient(this.getContext());
+
+        GISmanager.initialize("Bearer eb142d9027f84d51a4a20df8490e44bcf6fc7ef4dea64cae96a7fca282ebd8cc02764651");
 
         AutocompleteSupportFragment autocompleteFragment = mainActivity.getAutocompleteFragment();
         autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.LAT_LNG));
