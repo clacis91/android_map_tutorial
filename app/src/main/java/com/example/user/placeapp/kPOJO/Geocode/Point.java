@@ -1,5 +1,5 @@
 
-package com.example.user.placeapp.kPOJO;
+package com.example.user.placeapp.kPOJO.Geocode;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

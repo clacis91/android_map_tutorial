@@ -3,7 +3,7 @@ package com.example.user.placeapp.Maps;
 import android.graphics.Bitmap;
 
 import com.example.user.placeapp.POJO.Nearby;
-import com.example.user.placeapp.kPOJO.Geocode;
+import com.example.user.placeapp.kPOJO.Geocode.GeocodeResponse;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.PlacesClient;
@@ -23,21 +23,18 @@ public interface GoogleMapContract {
             public void onPlaceFinished(Place place, Bitmap placePhoto);
             public void onPlaceFailure(Throwable t);
 
-            public Geocode onGeocodeFinished(Response<Geocode> response);
-            public void onGeocodeFailure(Throwable t);
+            public void onGeocodeFinished(GeocodeResponse geocodeResponse);
         }
 
         public void callNearby(OnFinishedListener onFinishedListener, LatLng curPos, String type, String googleApiKey);
         public void callPlaceInfo(OnFinishedListener onFinishedListener, PlacesClient placesClient, String placeId);
         public void callGeocode(OnFinishedListener onFinishedListener);
-        //public void callPhoto(PlacesClient placesClient, Place place);
     }
 
     interface Presenter {
 
         public void getNearby(LatLng curPos, String type, String googleApiKey);
         public void getPlaceInfo(PlacesClient placesClient, String placeId);
-        //public void getPlacePhoto(PlacesClient placesClient);
     }
 
     interface View {

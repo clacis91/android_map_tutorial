@@ -3,9 +3,13 @@ package com.example.user.placeapp.Maps;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.example.user.placeapp.kPOJO.Geocode;
+import com.example.user.placeapp.kPOJO.Geocode.GeocodeResponse;
+import com.example.user.placeapp.kPOJO.Geocode.GeocodeResult;
+import com.example.user.placeapp.kPOJO.Geocode.ResidentialAddress;
 
 import java.io.IOException;
+import java.net.URL;
+import java.util.List;
 
 import okhttp3.Interceptor;
 import okhttp3.Request;
@@ -14,11 +18,17 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class GISclient extends RetrofitClient {
+public class GISclient {
     private Interceptor interceptor;
+    private RetrofitClient retrofitClient;
     private Retrofit retrofit;
 
-    public void GISclient() {
+    public GISclient() {
+        retrofitClient = RetrofitClient.getInstance();
+    }
+
+    public void setBaseurl(URL baseurl) {
+        retrofitClient.setBaseurl(baseurl);
     }
 
     /**
@@ -39,44 +49,101 @@ public class GISclient extends RetrofitClient {
             }
         };
 
-        this.setInterceptor(interceptor);
-        retrofit = this.getRetrofit();
+        retrofitClient.setInterceptor(interceptor);
+        retrofit = retrofitClient.getRetrofit();
     }
 
-    public void callGeocode(String param) {
+    public void callGeocode(GISinterface.geocodeBody body, OnGisResponse onGisResponse) {
         // TODO: authHeader Check
         // TODO: retrofit Check
+        Call<GeocodeResponse> call = retrofit.create(GISinterface.class).postGeocode(body);
+        call.enqueue(OnGeocodeResponse(onGisResponse));
 
-        Call<Geocode> call = retrofit.create(GISinterface.class).getGeocode(param);
-        callGISapi(call);
+        /*
+        call.enqueue(new Callback<GeocodeResponse>() {
+            @Override
+            public void onResponse(Call<GeocodeResponse> call, Response<GeocodeResponse> response) {
+                try {
+                    List<GeocodeResult> result = refineGeocodeResponse(response.body());
+                    onGisResponse.OnSuccess(result);
+                } catch (Exception e) {
+                    Log.d("geocode_test", "There is an error");
+                    onGisResponse.OnFailure();
+                    e.printStackTrace();
+                }
+            }
+            @Override
+            public void onFailure(Call<GeocodeResponse> call, Throwable t) {
+                Log.d("geocode_fail", t.toString());
+            }
+        });
+        */
     }
 
-    public <T> void callGISapi(GoogleMapContract.Model.OnFinishedListener onFinishedListener, Call<T> call) {
+    public void callGeocode(String param, OnGisResponse onGisResponse) {
+        Call<GeocodeResponse> call = retrofit.create(GISinterface.class).getGeocode(param, null, null);
+        call.enqueue(OnGeocodeResponse(onGisResponse));
+    }
+
+    public void callGeocode(Double lat, Double lng, OnGisResponse onGisResponse) {
+        Call<GeocodeResponse> call = retrofit.create(GISinterface.class).getGeocode(null, lat, lng);
+        call.enqueue(OnGeocodeResponse(onGisResponse));
+    }
+
+    private List<GeocodeResult> refineGeocodeResponse(GeocodeResponse geocodeResponse) {
+        List<GeocodeResult> geocodeResult = null;
+        for(ResidentialAddress responseList : geocodeResponse.getResidentialAddress()) {
+            GeocodeResult result = new GeocodeResult();
+            result.setParcelAddress(responseList.getParcelAddress());
+            result.setRoadAddress(responseList.getRoadAddress());
+            geocodeResult.add(result);
+        }
+        return geocodeResult;
+    }
+
+    Callback<GeocodeResponse> OnGeocodeResponse(OnGisResponse onGisResponse) {
+
+        Callback<GeocodeResponse> callback = new Callback<GeocodeResponse>() {
+            @Override
+            public void onResponse(Call<GeocodeResponse> call, Response<GeocodeResponse> response) {
+                try {
+                    List<GeocodeResult> result = refineGeocodeResponse(response.body());
+                    onGisResponse.OnSuccess(result);
+                } catch (Exception e) {
+                    Log.d("geocode_test", "There is an error");
+                    onGisResponse.OnFailure();
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<GeocodeResponse> call, Throwable t) {
+                Log.d("geocode_fail", t.toString());
+            }
+
+        };
+        return callback;
+    }
+
+    /*private <T> void callGISapi(Call<T> call, final OnGisResponse onGisCallListener) {
+        Log.d("geocode_call", String.valueOf(call.request().toString()));
+
         call.enqueue(new Callback<T>() {
             @Override
             public void onResponse(Call<T> call, Response<T> response) {
                 try {
-                    Log.d("geocode_test", String.valueOf(response.toString()));
-                    //Log.d("geocode_test", String.valueOf(response.body().getResidentialAddress().size()));
-                    //onFinishedListener.onGeocodeFinished(response);
+
+                    onGisCallListener.OnSuccess(response);
                 } catch (Exception e) {
                     Log.d("geocode_test", "There is an error");
+                    onGisCallListener.OnFailure(response);
                     e.printStackTrace();
                 }
             }
             @Override
             public void onFailure(Call<T> call, Throwable t) {
-                Log.d("geocode_fail", call.toString());
                 Log.d("geocode_fail", t.toString());
             }
         });
-    }
-
-    private <T> Response<T> gisClientListener(Response<T> response) {
-        return response;
-    }
-
-    //public GISclient getGISclient() {
-    //}
-
+    }*/
 }

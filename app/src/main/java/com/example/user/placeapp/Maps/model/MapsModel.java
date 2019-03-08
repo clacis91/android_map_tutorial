@@ -8,10 +8,8 @@ import com.example.user.placeapp.Maps.GISclient;
 import com.example.user.placeapp.Maps.GISinterface;
 import com.example.user.placeapp.Maps.GISmanager;
 import com.example.user.placeapp.Maps.GoogleMapContract;
-import com.example.user.placeapp.Maps.NearbyPlaces;
-import com.example.user.placeapp.Maps.RetrofitClient;
-import com.example.user.placeapp.POJO.Nearby;
-import com.example.user.placeapp.kPOJO.Geocode;
+import com.example.user.placeapp.Maps.OnGisResponse;
+import com.example.user.placeapp.kPOJO.Geocode.GeocodeResult;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -24,56 +22,30 @@ import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.FetchPlaceResponse;
 import com.google.android.libraries.places.api.net.PlacesClient;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MapsModel implements GoogleMapContract.Model {
 
     @Override
     public void callGeocode(OnFinishedListener onFinishedListener) {
 
-        /*URL baseurl = null;
-        try {
-            baseurl = new URL("https://gis.kt.com/search/v1.0/");
-        } catch (MalformedURLException e) {
-            Log.d("geocode_test", "URL error");
-            e.printStackTrace();
-        }*/
-
-        //GISinterface gisClient = RetrofitClient.getInstance().getRetrofit(baseurl).create(GISinterface.class);
-        //Call<Geocode> call = geocode.getNearbyPlaces(String.valueOf(curPos.latitude) + "," + String.valueOf(curPos.longitude), 1000, type, googleApiKey);
         String kt_string = "서울시 서초구 태봉로 151";
         GISclient gisClient = GISmanager.createClient();
 
-        gisClient.callGeocode(kt_string);
-
-        //Call<Geocode> call = gisManager.createClient().getGeocode(kt_string);
-        //Call<Geocode> call = gisClient.getGeocode(37.4713571,127.0271674);
-        //Call<Geocode> call = gisClient.getGeocode(kt_string);
-
-        /*call.enqueue(new Callback<Geocode>() {
+        //gisClient.callGeocode(kt_string, new OnGisResponse<GeocodeResponse>() {
+        gisClient.callGeocode(37.4713571,127.0271674, new OnGisResponse() {
+        //gisClient.callGeocode(new GISinterface.geocodeBody(37.4713571, 127.0271674), new OnGisResponse() {
             @Override
-            public void onResponse(Call<Geocode> call, Response<Geocode> response) {
-                try {
-                    Log.d("geocode_test", String.valueOf(response.toString()));
-                    Log.d("geocode_test", String.valueOf(response.body().getResidentialAddress().size()));
-                } catch (Exception e) {
-                    Log.d("geocode_test", "There is an error");
-                    e.printStackTrace();
-                }
+            public void OnSuccess(List<GeocodeResult> gisResponse) {
+
             }
+
             @Override
-            public void onFailure(Call<Geocode> call, Throwable t) {
-                Log.d("geocode_fail", call.toString());
-                Log.d("geocode_fail", t.toString());
+            public void OnFailure() {
+
             }
-        });*/
+        });
     }
 
     @Override
@@ -168,6 +140,4 @@ public class MapsModel implements GoogleMapContract.Model {
             }
         });
     }
-
-
 }

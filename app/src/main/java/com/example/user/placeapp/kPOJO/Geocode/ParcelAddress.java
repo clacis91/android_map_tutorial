@@ -1,23 +1,20 @@
 
-package com.example.user.placeapp.kPOJO;
+package com.example.user.placeapp.kPOJO.Geocode;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class RoadAddress {
+public class ParcelAddress {
 
     @SerializedName("country")
     @Expose
     private String country;
-    @SerializedName("street")
+    @SerializedName("eupMyeonDong")
     @Expose
-    private String street;
-    @SerializedName("streetNumber")
+    private String eupMyeonDong;
+    @SerializedName("badmId")
     @Expose
-    private String streetNumber;
-    @SerializedName("streetId")
-    @Expose
-    private String streetId;
+    private String badmId;
     @SerializedName("geographicInformation")
     @Expose
     private GeographicInformation geographicInformation;
@@ -27,15 +24,21 @@ public class RoadAddress {
     @SerializedName("siGunGu1")
     @Expose
     private String siGunGu1;
-    @SerializedName("isBasement")
+    @SerializedName("houseNumber")
     @Expose
-    private Boolean isBasement;
+    private String houseNumber;
+    @SerializedName("isMountain")
+    @Expose
+    private Boolean isMountain;
+    @SerializedName("isFromBName")
+    @Expose
+    private Boolean isFromBName;
     @SerializedName("fullAddress")
     @Expose
     private String fullAddress;
-    @SerializedName("rbucode")
+    @SerializedName("pnucode")
     @Expose
-    private String rbucode;
+    private String pnucode;
     @SerializedName("siGunGu")
     @Expose
     private String siGunGu;
@@ -48,28 +51,20 @@ public class RoadAddress {
         this.country = country;
     }
 
-    public String getStreet() {
-        return street;
+    public String getEupMyeonDong() {
+        return eupMyeonDong;
     }
 
-    public void setStreet(String street) {
-        this.street = street;
+    public void setEupMyeonDong(String eupMyeonDong) {
+        this.eupMyeonDong = eupMyeonDong;
     }
 
-    public String getStreetNumber() {
-        return streetNumber;
+    public String getBadmId() {
+        return badmId;
     }
 
-    public void setStreetNumber(String streetNumber) {
-        this.streetNumber = streetNumber;
-    }
-
-    public String getStreetId() {
-        return streetId;
-    }
-
-    public void setStreetId(String streetId) {
-        this.streetId = streetId;
+    public void setBadmId(String badmId) {
+        this.badmId = badmId;
     }
 
     public GeographicInformation getGeographicInformation() {
@@ -96,12 +91,28 @@ public class RoadAddress {
         this.siGunGu1 = siGunGu1;
     }
 
-    public Boolean getIsBasement() {
-        return isBasement;
+    public String getHouseNumber() {
+        return houseNumber;
     }
 
-    public void setIsBasement(Boolean isBasement) {
-        this.isBasement = isBasement;
+    public void setHouseNumber(String houseNumber) {
+        this.houseNumber = houseNumber;
+    }
+
+    public Boolean getIsMountain() {
+        return isMountain;
+    }
+
+    public void setIsMountain(Boolean isMountain) {
+        this.isMountain = isMountain;
+    }
+
+    public Boolean getIsFromBName() {
+        return isFromBName;
+    }
+
+    public void setIsFromBName(Boolean isFromBName) {
+        this.isFromBName = isFromBName;
     }
 
     public String getFullAddress() {
@@ -112,12 +123,12 @@ public class RoadAddress {
         this.fullAddress = fullAddress;
     }
 
-    public String getRbucode() {
-        return rbucode;
+    public String getPnucode() {
+        return pnucode;
     }
 
-    public void setRbucode(String rbucode) {
-        this.rbucode = rbucode;
+    public void setPnucode(String pnucode) {
+        this.pnucode = pnucode;
     }
 
     public String getSiGunGu() {

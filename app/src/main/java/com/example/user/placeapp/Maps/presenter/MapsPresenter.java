@@ -6,7 +6,7 @@ import com.example.user.placeapp.Maps.GoogleMapContract;
 import com.example.user.placeapp.Maps.model.MapsModel;
 import com.example.user.placeapp.POJO.Nearby;
 import com.example.user.placeapp.POJO.NearbyResult;
-import com.example.user.placeapp.kPOJO.Geocode;
+import com.example.user.placeapp.kPOJO.Geocode.GeocodeResponse;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.PlacesClient;
@@ -76,11 +76,9 @@ public class MapsPresenter implements GoogleMapContract.Presenter, GoogleMapCont
     }
 
     @Override
-    public Geocode onGeocodeFinished(Response<Geocode> response) {
-        return response.body();
+    public void onGeocodeFinished(GeocodeResponse geocodeResponse) {
     }
 
-    @Override
-    public void onGeocodeFailure(Throwable t) {
+    public void onGisFinished(Response<GeocodeResponse> response) {
     }
 }

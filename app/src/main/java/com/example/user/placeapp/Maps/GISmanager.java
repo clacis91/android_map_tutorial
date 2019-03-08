@@ -45,7 +45,6 @@ public class GISmanager {
         }
         gisClient.setBaseurl(baseurl);
         gisClient.authHeaderBuilder(mApiKey.getApikey());
-        //return gisClient.getRetrofit().create(GISinterface.class);
 
         return gisClient;
     }

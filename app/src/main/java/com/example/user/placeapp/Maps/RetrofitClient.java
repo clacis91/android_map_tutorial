@@ -10,8 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RetrofitClient {
 
     static private RetrofitClient instance;
-    protected Retrofit.Builder retrofitBuilder;
-    //private Retrofit retrofit;
+    private Retrofit.Builder retrofitBuilder;
 
     static public RetrofitClient getInstance(){
         synchronized (RetrofitClient.class){

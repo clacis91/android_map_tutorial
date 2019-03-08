@@ -1,11 +1,11 @@
 
-package com.example.user.placeapp.kPOJO;
+package com.example.user.placeapp.kPOJO.Geocode;
 
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Geocode {
+public class GeocodeResponse {
 
     @SerializedName("transactionId")
     @Expose
