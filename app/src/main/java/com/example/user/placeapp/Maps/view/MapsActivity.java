@@ -1,11 +1,19 @@
 package com.example.user.placeapp.Maps.view;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -24,27 +32,24 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.net.PlacesClient;
-import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
-import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+//import com.kt.place.sdk.util.Client;
+//import com.kt.place.sdk.util.Manager;
 
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class MapsActivity extends Fragment implements OnMapReadyCallback,
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback/*,
                                                         GoogleMap.OnMapClickListener,
                                                         GoogleMap.OnMarkerClickListener,
-                                                        GoogleMapContract.View {
+                                                        GoogleMapContract.View */{
     private MapsPresenter presenter;
 
+    private GoogleMap mMap;
     private SupportMapFragment mapFragment;
     private ImageView photoView;
-    private String googleApiKey;
 
-    private PlacesClient placesClient;
-    private GoogleMap mMap;
+    //private Client placeClient;
+    private String apiKey;
 
     private LatLng curPos;
     private Marker curMarker;
@@ -53,49 +58,29 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        presenter = new MapsPresenter(this);
-        googleApiKey = BuildConfig.ApiKey;
-        placeMarkers = new HashMap<>();
-    }
+        setContentView(R.layout.activity_map);
 
-    @Override
-    public android.view.View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.activity_map, container, false);
-    }
+        Intent intent = getIntent();
+        //String fbId = intent.getStringExtra("fb_id");
+        String accessToken = intent.getStringExtra("fb_token");
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        MainActivity mainActivity = (MainActivity) getActivity();
+        Log.d("access_token", accessToken);
+        // TODO : 로그인한 유저 정보를 MainActivity intent에서 받기
 
-        mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        //presenter = new MapsPresenter(this);
+        apiKey = BuildConfig.ApiKey;
+
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        photoView = mainActivity.findViewById(R.id.placePhoto);
-
-        Places.initialize(getContext(), googleApiKey);
-        placesClient = Places.createClient(this.getContext());
-
-        AutocompleteSupportFragment autocompleteFragment = mainActivity.getAutocompleteFragment();
-        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.LAT_LNG));
-        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-            @Override
-            public void onPlaceSelected(Place place) {
-                moveCurPosition(place.getLatLng());
-            }
-
-            @Override
-            public void onError(Status status) {
-            }
-        });
+        //Manager.initialize(getContext(), apiKey);
+        //placeClient = new Client();
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
-        // For showing a move to my location button
-        // mMap.setMyLocationEnabled(true);
+        /*placeMarkers = new HashMap<>();
 
         LatLng seoul = new LatLng(37.576208, 126.976818);
         curPos = seoul;
@@ -129,8 +114,10 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
         });
 
         mMap.setOnMapClickListener(this);
-        mMap.setOnMarkerClickListener(this);
+        mMap.setOnMarkerClickListener(this);*/
     }
+
+    /*
 
     @Override
     public void onMapClick(LatLng latlng) {
@@ -155,10 +142,10 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
     }
 
     private void getNearbyResponse(String type) {
-        presenter.getNearby(curPos, type, googleApiKey);
+        //presenter.getNearby(curPos, type);
     }
 
-    @Override
+    //@Override
     public void drawNearbyMarker(HashMap<LatLng,String> responseMap) {
         for(LatLng latlng : responseMap.keySet()){
             MarkerOptions markerOptions = new MarkerOptions();
@@ -181,19 +168,12 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
     }
 
     private void getPlaceInfo(String placeId) {
-        presenter.getPlaceInfo(placesClient, placeId);
+        //presenter.getPlaceInfo(placesClient, placeId);
     }
 
-    @Override
-    public void drawPlaceInfo(Place place, Bitmap placePhoto) {
-        TextView placeNameTextView = getActivity().findViewById(R.id.placeName);
-        placeNameTextView.setText(place.getName());
-        TextView placeAddressTextView = getActivity().findViewById(R.id.placeAddress);
-        placeAddressTextView.setText(place.getAddress());
-
-        if(placePhoto == null)
-            placePhoto = BitmapFactory.decodeResource(getResources(), R.drawable.noimage);
-
+    //@Override
+    public void drawPlaceInfo(Bitmap placePhoto) {
         photoView.setImageBitmap(placePhoto);
     }
+    */
 }

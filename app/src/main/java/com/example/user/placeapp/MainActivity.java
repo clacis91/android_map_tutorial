@@ -1,47 +1,108 @@
 package com.example.user.placeapp;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.View;
 
 import com.example.user.placeapp.Maps.view.MapsActivity;
-import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.appevents.AppEventsLogger;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Arrays;
+import java.util.Currency;
 
 public class MainActivity extends AppCompatActivity {
-    AutocompleteSupportFragment autocompleteFragment;
+
+    CallbackManager callbackManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        callbackManager = CallbackManager.Factory.create();
 
-        // Initialize the AutocompleteSupportFragment.
-        autocompleteFragment = (AutocompleteSupportFragment) getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
+        SharedPreferences fbPref = getPreferences(MODE_PRIVATE);
+        String access_token = fbPref.getString("access_token", null);
+        long expires = fbPref.getLong("access_expires", 0);
 
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.mapLayout, new MapsActivity()).commit();
+        if(access_token == null || expires == 0) {
+            setContentView(R.layout.activity_main);
+        }
+        else {
+            Intent i = new Intent(MainActivity.this, MapsActivity.class);
+            i.putExtra("fb_token",AccessToken.getCurrentAccessToken().getToken());
+            startActivity(i);
+        }
     }
 
-    public AutocompleteSupportFragment getAutocompleteFragment() {
-        return autocompleteFragment;
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
-    /**
-     * TODO :
-     * Google map marker -> Place API 연동
-     *          1. marker 좌표 얻는 기능 (map fragment상에서 구현) - O
-     *          2. marker 정보 main activity로 전달 - O
-     *          3. main activity로 넘어온 marker 좌표 출력 (테스트 용) - O
-     *          --------------
-     *          retrofit 적용해서 nearby api 사용 -- until 190227
-     *          4. marker 좌표 이용한 place API 연동
-     * History ListView 클릭 : Place API 연동, Google map marker 이동
-     *  --- > History가 아닌 각 marker의 브리핑 정보를 보여주도록
-     *        왼편은 detail 정보
-     * Google map 상단 검색창
-     */
+    public void facebookLoginOnClick(View v){
+        LoginManager.getInstance().logInWithReadPermissions(MainActivity.this,
+                Arrays.asList("public_profile", "email"));
+        LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
 
+            @Override
+            public void onSuccess(final LoginResult result) {
 
+                GraphRequest request;
+                request = GraphRequest.newMeRequest(result.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
+
+                    @Override
+                    public void onCompleted(JSONObject user, GraphResponse response) {
+                        if (response.getError() != null) {
+
+                        } else {
+                            setResult(RESULT_OK);
+
+                            Intent i = new Intent(MainActivity.this, MapsActivity.class);
+                            i.putExtra("fb_id",user.toString());
+                            i.putExtra("fb_token",result.getAccessToken().getToken());
+                            startActivity(i);
+                            finish();
+                        }
+                    }
+                });
+                Bundle parameters = new Bundle();
+                parameters.putString("fields", "id,name,email,gender,birthday");
+                request.setParameters(parameters);
+                request.executeAsync();
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+                Log.e("test", "Error: " + error);
+                //finish();
+            }
+
+            @Override
+            public void onCancel() {
+                //finish();
+            }
+        });
+    }
 }
