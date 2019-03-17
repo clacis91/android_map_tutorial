@@ -65,7 +65,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String accessToken = intent.getStringExtra("fb_token");
 
         Log.d("access_token", accessToken);
-        // TODO : 로그인한 유저 정보를 MainActivity intent에서 받기
+        // TODO : 로그인한 유저 정보를 서버에서 체크
 
         //presenter = new MapsPresenter(this);
         apiKey = BuildConfig.ApiKey;
@@ -75,6 +75,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //Manager.initialize(getContext(), apiKey);
         //placeClient = new Client();
+    }
+
+    public void signInOrSignUp(String accessToken) {
+
     }
 
     @Override
@@ -176,4 +180,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         photoView.setImageBitmap(placePhoto);
     }
     */
+
+    public void getPlaceList(View v) {
+        Intent i = new Intent(MapsActivity.this, ListActivity.class);
+        //i.putExtra("fb_id",user.toString());
+        startActivity(i);
+        //finish();
+    }
 }
