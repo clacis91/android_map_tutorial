@@ -31,10 +31,8 @@ public class ListActivity extends AppCompatActivity implements placeListContract
 
     public class Listviewitem {
         private sPlace place;
-        private String poiId;
-        public Listviewitem(sPlace place, String poiId){
+        public Listviewitem(sPlace place){
             this.place = place;
-            this.poiId = poiId;
         }
     }
 
@@ -53,16 +51,23 @@ public class ListActivity extends AppCompatActivity implements placeListContract
     }
 
     @Override
-    public void setMyplaceList(HashMap<sPlace, String> response) {
+    public void setMyplaceList(ArrayList<sPlace> places) {
         ListView listView=(ListView)findViewById(R.id.placeList);
         ArrayList<Listviewitem> listviewitems = new ArrayList<>();
 
-        for(sPlace item : response) {
-            listviewitems.add(new Listviewitem(item));
-        } 
+        for(sPlace place : places) {
+            listviewitems.add(new Listviewitem(place));
+        }
 
         adapter = new ListviewAdapter(this,R.layout.list_content, listviewitems);
         listView.setAdapter(adapter);
+    }
+
+    @Override
+    public void setMyplaceList(int position, String poiName) {
+        ListView myPlacelistView = (ListView)findViewById(R.id.placeList);
+        TextView poiNameView = myPlacelistView.getChildAt(position).findViewById(R.id.poiName);
+        poiNameView.setText(poiName);
     }
 
     public class ListviewAdapter extends BaseAdapter {
@@ -84,7 +89,7 @@ public class ListActivity extends AppCompatActivity implements placeListContract
         public int getCount(){return data.size();}
 
         @Override
-        public String getItem(int position){return data.get(position).place.get_id();}
+        public String getItem(int position){return data.get(position).toString();}
 
         @Override
         public long getItemId(int position){return position;}
@@ -98,7 +103,7 @@ public class ListActivity extends AppCompatActivity implements placeListContract
             ImageView poiImageView=(ImageView)convertView.findViewById(R.id.poiImage);
             Glide.with(context).load(listviewitem.place.getPlacePicUrl().get(0)).into(poiImageView);
             TextView poiNameView = (TextView)convertView.findViewById(R.id.poiName);
-            //poiNameView.setText(listviewitem.place.get());
+            poiNameView.setText("");
             return convertView;
         }
     }

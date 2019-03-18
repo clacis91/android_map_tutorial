@@ -8,6 +8,12 @@ import com.kt.place.sdk.net.PoiResponse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import javax.xml.transform.Result;
 
 public class ListPresenter implements placeListContract.Presenter {
     placeListContract.View placeListView;
@@ -25,18 +31,13 @@ public class ListPresenter implements placeListContract.Presenter {
 
     @Override
     public void getMyplaceList(String fbId) {
-        //poiNames = new ArrayList<>();
-        poiContent = new HashMap<>();
         placeListModel.callMyPlaceList(fbId, new MapServiceModel.callMyPlaceListListener() {
             @Override
             public void onGetMyPlaceListFinished(ArrayList<sPlace> sPlaceList) {
-                for(sPlace place : sPlaceList) {
-                    getPoiNameByRetrieve(place);
+                placeListView.setMyplaceList(sPlaceList);
+                for(int i = 0; i < sPlaceList.size(); i++) {
+                    getPoiNameByRetrieve(i, sPlaceList.get(i));
                 }
-
-                while(sPlaceList.size() != poiContent.size()){} // Hashmap 완성 전까지 loop
-
-                placeListView.setMyplaceList(poiContent);
             }
 
             @Override
@@ -45,13 +46,13 @@ public class ListPresenter implements placeListContract.Presenter {
         });
     }
 
-    private void getPoiNameByRetrieve(final sPlace place) {
+    private void getPoiNameByRetrieve(final int position, sPlace place) {
         mapsModel.callpoiRetrieve(place.getpoiId(), new MapsModel.poiRetrieveListener() {
             @Override
             public void onPoiRetrieveFinished(PoiResponse response) {
                 String poiName = response.getPois().get(0).getName();
-                //poiNames.add(poiName);
-                poiContent.put(place, poiName);
+                //poiContent.put(place, poiName);
+                placeListView.setMyplaceList(position, poiName);
             }
 
             @Override

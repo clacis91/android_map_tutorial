@@ -17,8 +17,8 @@ public interface placeListContract {
 
     interface View {
 
-        //public void setMyplaceList(ArrayList<sPlace> response, String poiName);
-        public void setMyplaceList(HashMap<sPlace, String> poiListContent);
+        public void setMyplaceList(ArrayList<sPlace> response);
+        public void setMyplaceList(int position, String poiName);
         //public void setMyplaceListPoi(PoiResponse response);
     }
 }
