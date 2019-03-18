@@ -1,56 +1,37 @@
 package com.example.user.placeapp.Maps.presenter;
 
-import android.graphics.Bitmap;
-
-import com.example.user.placeapp.Maps.GoogleMapContract;
+import com.example.user.placeapp.Maps.MapsContract;
+import com.example.user.placeapp.Maps.model.MapServiceModel;
 import com.example.user.placeapp.Maps.model.MapsModel;
+import com.example.user.placeapp.POJO.sAccess;
 import com.google.android.gms.maps.model.LatLng;
-//import com.kt.place.sdk.util.Client;
 
-import java.util.HashMap;
 
-public class MapsPresenter implements GoogleMapContract.Presenter, GoogleMapContract.Model.OnFinishedListener {
+public class MapsPresenter implements MapsContract.Presenter {
 
-    GoogleMapContract.View view;
-    GoogleMapContract.Model model;
+    MapsContract.View mapsView;
+    MapsModel mapsModel;
+    MapServiceModel mapServiceModel;
 
-    public MapsPresenter(GoogleMapContract.View view) {
+    public MapsPresenter(MapsContract.View mapsView) {
 
-        this.view = view;
-        model = new MapsModel();
+        this.mapsView = mapsView;
+
+        mapsModel = new MapsModel();
+        mapServiceModel = new MapServiceModel();
     }
 
-    //@Override
-    public void getNearby(LatLng curPos, String type, String googleApiKey) {
-        //model.callNearby(this, curPos, type, googleApiKey);
-    }
+    @Override
+    public void getSignCheck(String accessToken) {
+        mapServiceModel.callSignCheck(accessToken, new MapServiceModel.callSignCheckListener() {
+            @Override
+            public void onSignCheckFinished(sAccess response) {
+                mapsView.setFbInfo(response);
+            }
 
-    //@Override
-    /*public void onNearbyFinished(Response<Nearby> response) {
-
-        HashMap<LatLng,String> responseMap = getDataForMarker(response);
-        view.drawNearbyMarker(responseMap);
-    }*/
-
-    //@Override
-    public void onNearbyFailure(Throwable t) {
-    }
-
-    //private HashMap<LatLng,String> getDataForMarker(Response<Nearby> response) {
-    //}
-
-
-    //@Override
-    //public void getPlaceInfo(Client placeClient, String placeId) {
-        //model.callPlaceInfo(this, placeClient, placeId);
-    //}
-
-    //@Override
-    //public void onPlaceFinished(Client placeClient, Bitmap placePhoto) {
-        //view.drawPlaceInfo(place, placePhoto);
-    //}
-
-    //@Override
-    public void onPlaceFailure(Throwable t) {
+            @Override
+            public void onSignCheckFailure(Throwable t) {
+            }
+        });
     }
 }

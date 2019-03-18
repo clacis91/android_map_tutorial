@@ -1,28 +1,20 @@
 package com.example.user.placeapp.Maps.view;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.example.user.placeapp.BuildConfig;
-import com.example.user.placeapp.MainActivity;
-import com.example.user.placeapp.Maps.GoogleMapContract;
+import com.example.user.placeapp.Maps.MapsContract;
+import com.example.user.placeapp.Maps.placeListContract;
 import com.example.user.placeapp.Maps.presenter.MapsPresenter;
+import com.example.user.placeapp.POJO.sAccess;
+import com.example.user.placeapp.POJO.sPlace;
 import com.example.user.placeapp.R;
-import com.google.android.gms.common.api.Status;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -32,16 +24,16 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.kt.place.sdk.util.Manager;
 //import com.kt.place.sdk.util.Client;
 //import com.kt.place.sdk.util.Manager;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback/*,
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,/*
                                                         GoogleMap.OnMapClickListener,
-                                                        GoogleMap.OnMarkerClickListener,
-                                                        GoogleMapContract.View */{
+                                                        GoogleMap.OnMarkerClickListener,*/
+                                                        MapsContract.View {
     private MapsPresenter presenter;
 
     private GoogleMap mMap;
@@ -55,43 +47,53 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Marker curMarker;
     private HashMap<Marker, String> placeMarkers;
 
+    //Facebook Access info
+    private sAccess fbInfo;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
         Intent intent = getIntent();
-        //String fbId = intent.getStringExtra("fb_id");
         String accessToken = intent.getStringExtra("fb_token");
 
-        Log.d("access_token", accessToken);
-        // TODO : 로그인한 유저 정보를 서버에서 체크
+        presenter = new MapsPresenter(this);
 
-        //presenter = new MapsPresenter(this);
+        fbInfo = new sAccess();
+        Log.d("access_token", accessToken);
+        presenter.getSignCheck(accessToken);
+
         apiKey = BuildConfig.ApiKey;
+        Manager.initialize(getApplicationContext(), apiKey);
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        //Manager.initialize(getContext(), apiKey);
+        //
         //placeClient = new Client();
     }
 
-    public void signInOrSignUp(String accessToken) {
-
+    public void setFbInfo(sAccess info) {
+        this.fbInfo = info;
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        /*placeMarkers = new HashMap<>();
+        //placeMarkers = new HashMap<>();
 
         LatLng seoul = new LatLng(37.576208, 126.976818);
         curPos = seoul;
-        curMarker = mMap.addMarker(new MarkerOptions().position(seoul).draggable(true));
-        curMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+
+        CameraUpdate point = CameraUpdateFactory.newLatLng(seoul);
+        mMap.moveCamera(point);
         moveCamera(seoul);
 
+        curMarker = mMap.addMarker(new MarkerOptions().position(seoul).draggable(true));
+        curMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+
+        /*
         getNearbyResponse("museum");
 
         mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
@@ -139,12 +141,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         placeMarkers.clear();
         getNearbyResponse("museum");
     }
+    */
 
     private void moveCamera(LatLng position) {
         CameraPosition cameraPosition = new CameraPosition.Builder().target(position).zoom(16).build();
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
+    /*
     private void getNearbyResponse(String type) {
         //presenter.getNearby(curPos, type);
     }
@@ -183,7 +187,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void getPlaceList(View v) {
         Intent i = new Intent(MapsActivity.this, ListActivity.class);
-        //i.putExtra("fb_id",user.toString());
+        Log.d("fb_id", fbInfo.getFbId());
+        i.putExtra("fb_id", fbInfo.getFbId());
         startActivity(i);
         //finish();
     }

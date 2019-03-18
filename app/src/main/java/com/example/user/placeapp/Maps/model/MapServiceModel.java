@@ -1,10 +1,11 @@
 package com.example.user.placeapp.Maps.model;
 
+import android.util.Log;
+
+import com.example.user.placeapp.POJO.sAccess;
 import com.example.user.placeapp.POJO.sPlace;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -12,50 +13,58 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class MapServiceModel {
-    //Retrofit.Builder retrofitBuilder = new Retrofit.Builder();
+public class MapServiceModel  {
+    Retrofit.Builder retrofitBuilder = new Retrofit.Builder();
+    Retrofit retrofit = retrofitBuilder.baseUrl("http://52.79.72.47:3000/").addConverterFactory(GsonConverterFactory.create()).build();
 
-    public List<sPlace> CallPlaceList() {
-    // public void CallPlaceList() {
-        /*
-        Retrofit retrofit = retrofitBuilder.baseUrl("52.79.72.47:3000/").addConverterFactory(GsonConverterFactory.create()).build();
-        Call<sPlace> call = retrofit.create(RetrofitInterface.class).postPlaceList();
+    public interface callMyPlaceListListener {
+        public void onGetMyPlaceListFinished(ArrayList<sPlace> response);
+        public void onGetMyPlaceListFailure(Throwable t);
+    }
 
-        call.enqueue(new Callback<sPlace>() {
+    public void callMyPlaceList(String fbId, final callMyPlaceListListener onFinishedListener) {
+        Call<ArrayList<sPlace>> call = retrofit.create(RetrofitInterface.class).getMyPlacesLists(fbId);
+
+        call.enqueue(new Callback<ArrayList<sPlace>>() {
             @Override
-            public void onResponse(Call<sPlace> call, Response<sPlace> response) {
-
+            public void onResponse(Call<ArrayList<sPlace>> call, Response<ArrayList<sPlace>> response) {
+                onFinishedListener.onGetMyPlaceListFinished(response.body());
             }
 
             @Override
-            public void onFailure(Call<sPlace> call, Throwable t) {
+            public void onFailure(Call<ArrayList<sPlace>> call, Throwable t) {
 
             }
         });
-        */
-        sPlace tmp1 = new sPlace();
-        tmp1.setPlacePicUrl("https://gisprj.s3.ap-northeast-2.amazonaws.com/poi/pictures/b4b37697-1f97-3148-815d-f0c0e733e45f/1552540043630e2b860bd-dc70-42d4-bd8f-075493da72a7");
-        tmp1.setPlacePicUrl("https://gisprj.s3.ap-northeast-2.amazonaws.com/poi/pictures/b4b37697-1f97-3148-815d-f0c0e733e45f/15525401281462baf366c-f950-4fe8-8063-03ef1cbe01a1");
-        tmp1.set_id("5c89e18be224e0794180acaa");
-        tmp1.set_poiId("b4b37697-1f97-3148-815d-f0c0e733e45f");
-        tmp1.set__v(1);
-
-        sPlace tmp2 = new sPlace();
-        tmp2.setPlacePicUrl("https://gisprj.s3.ap-northeast-2.amazonaws.com/poi/pictures/b4b37697-1f97-3148-815d-f0c0e733e45f/15525401281462baf366c-f950-4fe8-8063-03ef1cbe01a1");
-        tmp1.set_id("5c89e18be224e0794180acab");
-        tmp2.set_poiId("331ca334-0ca5-30b2-90b2-1a00b1e87eda");
-        tmp2.set__v(4);
-
-        List<sPlace> rtn = new ArrayList<>();
-        rtn.add(tmp1);
-        rtn.add(tmp2);
-
-        return rtn;
     }
 
+    public interface callSignCheckListener {
+        public void onSignCheckFinished(sAccess response);
+        public void onSignCheckFailure(Throwable t);
+    }
+
+    public void callSignCheck(String accessToken, final callSignCheckListener onFinishedListener) {
+        Call<sAccess> call = retrofit.create(RetrofitInterface.class).getSignCheck(new RetrofitInterface.signCheckRequest(accessToken));
+
+        call.enqueue(new Callback<sAccess>() {
+            @Override
+            public void onResponse(Call<sAccess> call, Response<sAccess> response) {
+                try {
+                    onFinishedListener.onSignCheckFinished(response.body());
+                } catch (Exception e) {
+                    Log.d("callSignCheck", "There is an error");
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<sAccess> call, Throwable t) {
+                Log.d("callSignCheck", "fail");
+            }
+        });
+    }
 }
 
-// server : 52.79.72.47:3000/
 /*
 우면 한라점 poi : a8d4543d-ce5f-3bf8-821f-2cce5b090769
 
