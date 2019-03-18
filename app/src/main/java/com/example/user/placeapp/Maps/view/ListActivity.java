@@ -59,7 +59,7 @@ public class ListActivity extends AppCompatActivity implements placeListContract
 
         for(sPlace item : response) {
             listviewitems.add(new Listviewitem(item));
-        }
+        } 
 
         adapter = new ListviewAdapter(this,R.layout.list_content, listviewitems);
         listView.setAdapter(adapter);
