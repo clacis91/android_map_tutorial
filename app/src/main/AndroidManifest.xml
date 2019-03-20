@@ -37,11 +37,29 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".Maps.view.PoiActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.PoiActivity" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".Maps.view.AddPhotoActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.AddPhotoActivity" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity android:name="com.facebook.FacebookActivity"
             android:configChanges=
                 "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name" />
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
 </manifest>

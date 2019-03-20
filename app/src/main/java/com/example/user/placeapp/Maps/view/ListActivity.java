@@ -8,24 +8,22 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.example.user.placeapp.Maps.model.MapServiceModel;
-import com.example.user.placeapp.Maps.placeListContract;
+import com.example.user.placeapp.Maps.PlaceListContract;
 import com.example.user.placeapp.Maps.presenter.ListPresenter;
 import com.example.user.placeapp.POJO.sPlace;
 import com.example.user.placeapp.R;
-import com.kt.place.sdk.net.PoiResponse;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
-public class ListActivity extends AppCompatActivity implements placeListContract.View{
+public class ListActivity extends AppCompatActivity implements PlaceListContract.View,
+                                                                AdapterView.OnItemClickListener{
     private ListPresenter presenter;
     private ListviewAdapter adapter;
 
@@ -61,6 +59,17 @@ public class ListActivity extends AppCompatActivity implements placeListContract
 
         adapter = new ListviewAdapter(this,R.layout.list_content, listviewitems);
         listView.setAdapter(adapter);
+        listView.setOnItemClickListener(this);
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        TextView poiIdView = view.findViewById(R.id.poiId);
+        String poiId = poiIdView.getText().toString();
+
+        Intent i = new Intent(ListActivity.this, PoiActivity.class);
+        i.putExtra("poi_id", poiId);
+        startActivity(i);
     }
 
     @Override
@@ -96,16 +105,21 @@ public class ListActivity extends AppCompatActivity implements placeListContract
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent){
-            if(convertView==null){
-                convertView=inflater.inflate(layout,parent,false);
+            if(convertView == null){
+                convertView = inflater.inflate(layout,parent,false);
             }
+
             Listviewitem listviewitem = data.get(position);
-            ImageView poiImageView=(ImageView)convertView.findViewById(R.id.poiImage);
-            Glide.with(context).load(listviewitem.place.getPlacePicUrl().get(0)).into(poiImageView);
+
+            ImageView poiImageView = (ImageView)convertView.findViewById(R.id.poiImage);
             TextView poiNameView = (TextView)convertView.findViewById(R.id.poiName);
+            TextView poiIdView = (TextView)convertView.findViewById(R.id.poiId);
+
+            Glide.with(context).load(listviewitem.place.getPlacePicUrl().get(0)).into(poiImageView);
             poiNameView.setText("");
+            poiIdView.setText(listviewitem.place.getpoiId());
+
             return convertView;
         }
     }
-
 }

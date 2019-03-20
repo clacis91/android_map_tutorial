@@ -9,10 +9,8 @@ import android.widget.ImageView;
 
 import com.example.user.placeapp.BuildConfig;
 import com.example.user.placeapp.Maps.MapsContract;
-import com.example.user.placeapp.Maps.placeListContract;
 import com.example.user.placeapp.Maps.presenter.MapsPresenter;
 import com.example.user.placeapp.POJO.sAccess;
-import com.example.user.placeapp.POJO.sPlace;
 import com.example.user.placeapp.R;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -24,15 +22,16 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.kt.place.sdk.util.Client;
 import com.kt.place.sdk.util.Manager;
 //import com.kt.place.sdk.util.Client;
 //import com.kt.place.sdk.util.Manager;
 
 import java.util.HashMap;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,/*
-                                                        GoogleMap.OnMapClickListener,
-                                                        GoogleMap.OnMarkerClickListener,*/
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
+                                                        //GoogleMap.OnMapClickListener,
+                                                        GoogleMap.OnMarkerClickListener,
                                                         MapsContract.View {
     private MapsPresenter presenter;
 
@@ -40,7 +39,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private SupportMapFragment mapFragment;
     private ImageView photoView;
 
-    //private Client placeClient;
+    private Client placeClient;
     private String apiKey;
 
     private LatLng curPos;
@@ -70,8 +69,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        //
-        //placeClient = new Client();
+        placeClient = new Client();
     }
 
     public void setFbInfo(sAccess info) {
@@ -162,19 +160,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             placeMarkers.put(marker,responseMap.get(latlng));
         }
     }
+    */
 
     @Override
     public boolean onMarkerClick(Marker marker) {
+        /*
         String clickedMarkerId = marker.getId();
         for(Marker m : placeMarkers.keySet()){
             if(clickedMarkerId.equals(m.getId())) {
                 getPlaceInfo(placeMarkers.get(m));
             }
         }
-
+        */
         return true;
     }
-
+    /*
     private void getPlaceInfo(String placeId) {
         //presenter.getPlaceInfo(placesClient, placeId);
     }
@@ -192,4 +192,5 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         startActivity(i);
         //finish();
     }
+
 }

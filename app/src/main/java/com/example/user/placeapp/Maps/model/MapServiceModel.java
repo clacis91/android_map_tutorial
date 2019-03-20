@@ -4,9 +4,14 @@ import android.util.Log;
 
 import com.example.user.placeapp.POJO.sAccess;
 import com.example.user.placeapp.POJO.sPlace;
+import com.example.user.placeapp.POJO.sPlaceReview;
 
+import java.io.File;
 import java.util.ArrayList;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -33,7 +38,7 @@ public class MapServiceModel  {
 
             @Override
             public void onFailure(Call<ArrayList<sPlace>> call, Throwable t) {
-
+                //TODO: onGetMyPlaceListFailure
             }
         });
     }
@@ -60,39 +65,58 @@ public class MapServiceModel  {
             @Override
             public void onFailure(Call<sAccess> call, Throwable t) {
                 Log.d("callSignCheck", "fail");
+                //TODO: onSignCheckFailure
+            }
+        });
+    }
+
+    public interface callCurrentPlaceListener {
+        public void onGetCurrentPlaceFinished(sPlace response);
+        public void onGetCurrentPlaceFailure(Throwable t);
+    }
+
+    public void callCurrentPlace(String poiId, final callCurrentPlaceListener onFinishedListener) {
+        Call<sPlace> call = retrofit.create(RetrofitInterface.class).getCurrentPlace(poiId);
+
+        call.enqueue(new Callback<sPlace>() {
+            @Override
+            public void onResponse(Call<sPlace> call, Response<sPlace> response) {
+                onFinishedListener.onGetCurrentPlaceFinished(response.body());
+            }
+
+            @Override
+            public void onFailure(Call<sPlace> call, Throwable t) {
+                //TODO: onGetCurrentPlaceFailure
+            }
+        });
+    }
+
+    public interface addPlacePhotoListener {
+        public void onAddPlacePhotoFinished(sPlaceReview response);
+        public void onAddPlacePhotoFailure(Throwable t);
+    }
+
+    public void addPlacePhoto(String poiId, File imgFile, final addPlacePhotoListener onFinishedListener) {
+        RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), imgFile);
+        MultipartBody.Part body = MultipartBody.Part.createFormData("imgFile", imgFile.getName(), requestFile);
+
+        Call<sPlaceReview> call = retrofit.create(RetrofitInterface.class).addPhoto(poiId, body);
+
+        Log.d("addPlacePhoto", call.request().toString());
+
+        call.enqueue(new Callback<sPlaceReview>() {
+            @Override
+            public void onResponse(Call<sPlaceReview> call, Response<sPlaceReview> response) {
+                onFinishedListener.onAddPlacePhotoFinished(response.body());
+                Log.d("addPlacePhoto", "success");
+            }
+
+            @Override
+            public void onFailure(Call<sPlaceReview> call, Throwable t) {
+                //TODO: onAddPlacePhotoFailure
+                Log.d("addPlacePhoto", "fail");
+                Log.d("addPlacePhoto", t.getMessage().toString());
             }
         });
     }
 }
-
-/*
-우면 한라점 poi : a8d4543d-ce5f-3bf8-821f-2cce5b090769
-
-우면 iT 학교점 poi : b4b37697-1f97-3148-815d-f0c0e733e45f
-
-cu 중구 세종대로점 poi : 331ca334-0ca5-30b2-90b2-1a00b1e87eda
-
-cu 코리아나 호텔점 poi :
-f58eaf93-4913-3c18-a314-e8da0cf7153e
- */
-
-/*
-[
-    {
-        "placePicUrl": [
-            "https://gisprj.s3.ap-northeast-2.amazonaws.com/poi/pictures/b4b37697-1f97-3148-815d-f0c0e733e45f/1552540043630e2b860bd-dc70-42d4-bd8f-075493da72a7",
-            "https://gisprj.s3.ap-northeast-2.amazonaws.com/poi/pictures/b4b37697-1f97-3148-815d-f0c0e733e45f/15525401281462baf366c-f950-4fe8-8063-03ef1cbe01a1"
-        ],
-        "comments": [],
-        "_id": "5c89e18be224e0794180acaa",
-        "poiId": "b4b37697-1f97-3148-815d-f0c0e733e45f",
-        "__v": 1
-    },
-    {
-        "comments": [],
-        "_id": "",
-        "poiId": "331ca334-0ca5-30b2-90b2-1a00b1e87eda",
-        "__v": 4
-    }
-]
- */
