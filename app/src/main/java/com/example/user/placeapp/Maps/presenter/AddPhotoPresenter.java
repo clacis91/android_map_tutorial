@@ -1,13 +1,10 @@
 package com.example.user.placeapp.Maps.presenter;
 
-import android.database.Cursor;
-import android.net.Uri;
-import android.provider.MediaStore;
 import android.util.Log;
 
 import com.example.user.placeapp.Maps.AddPhotoContract;
 import com.example.user.placeapp.Maps.model.MapServiceModel;
-import com.example.user.placeapp.POJO.sPlaceReview;
+import com.example.user.placeapp.POJO.sPlaceOverview;
 
 import java.io.File;
 
@@ -26,7 +23,7 @@ public class AddPhotoPresenter implements AddPhotoContract.Presenter {
         File file = new File(imagePath);
         mapServiceModel.addPlacePhoto(poiId, file, new MapServiceModel.addPlacePhotoListener() {
             @Override
-            public void onAddPlacePhotoFinished(sPlaceReview response) {
+            public void onAddPlacePhotoFinished(sPlaceOverview response) {
                 addPhotoView.submitFinished(response);
             }
 

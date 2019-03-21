@@ -1,35 +1,35 @@
 package com.example.user.placeapp.Maps.presenter;
 
-import com.example.user.placeapp.Maps.MapsContract;
-import com.example.user.placeapp.Maps.PoiContract;
+import com.example.user.placeapp.Maps.OverviewContract;
 import com.example.user.placeapp.Maps.model.MapServiceModel;
 import com.example.user.placeapp.Maps.model.MapsModel;
 import com.example.user.placeapp.POJO.sPlace;
+import com.example.user.placeapp.POJO.sPlaceWithComment;
 import com.kt.place.sdk.model.Poi;
 import com.kt.place.sdk.net.PoiResponse;
 
 import java.util.List;
 
-public class PoiPresenter implements PoiContract.Presenter {
+public class OverviewPresenter implements OverviewContract.Presenter {
     MapsModel mapsModel;
     MapServiceModel mapServiceModel;
-    PoiContract.View poiView;
+    OverviewContract.View overviewView;
 
-    public PoiPresenter(PoiContract.View poiView) {
+    public OverviewPresenter(OverviewContract.View overviewView) {
 
-        this.poiView = poiView;
+        this.overviewView = overviewView;
 
         mapsModel = new MapsModel();
         mapServiceModel = new MapServiceModel();
     }
 
     @Override
-    public void getPoiInfo(String poiId) {
+    public void getOverviewInfo(String poiId) {
         mapServiceModel.callCurrentPlace(poiId, new MapServiceModel.callCurrentPlaceListener() {
             @Override
-            public void onGetCurrentPlaceFinished(sPlace response) {
+            public void onGetCurrentPlaceFinished(sPlaceWithComment response) {
                 List<String> imageUrls = response.getPlacePicUrl();
-                poiView.setPoiImage(imageUrls);
+                overviewView.setOverviewImage(imageUrls);
             }
 
             @Override
@@ -42,7 +42,7 @@ public class PoiPresenter implements PoiContract.Presenter {
             @Override
             public void onPoiRetrieveFinished(PoiResponse response) {
                 Poi poi = response.getPois().get(0);
-                poiView.setPoiInfo(poi);
+                overviewView.setOverviewInfo(poi);
             }
 
             @Override

@@ -1,10 +1,6 @@
 package com.example.user.placeapp.Maps;
 
-import android.net.Uri;
-
-import com.example.user.placeapp.POJO.sPlaceReview;
-
-import java.util.List;
+import com.example.user.placeapp.POJO.sPlaceOverview;
 
 public interface AddPhotoContract {
 
@@ -15,6 +11,6 @@ public interface AddPhotoContract {
 
     interface View {
 
-        public void submitFinished(sPlaceReview placeReview);
+        public void submitFinished(sPlaceOverview placeReview);
     }
 }

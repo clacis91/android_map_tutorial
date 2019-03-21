@@ -29,7 +29,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".Maps.view.ListActivity">
+        <activity android:name=".Maps.view.MyListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.ListActivity" />
 
@@ -48,6 +48,14 @@
         <activity android:name=".Maps.view.AddPhotoActivity">
             <intent-filter>
                 <action android:name="android.intent.action.AddPhotoActivity" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".Maps.view.AddReviewActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.AddReviewActivity" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>

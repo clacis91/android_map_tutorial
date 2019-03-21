@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class sPlaceReview implements Serializable {
+public class sPlaceOverview implements Serializable {
     @SerializedName("placePicUrl")
     @Expose
     private List<String> placePicUrl = new ArrayList<>();
@@ -19,7 +19,7 @@ public class sPlaceReview implements Serializable {
         return placePicUrl;
     }
 
-    public List<String> comments() {
+    public List<String> getComments() {
         return comments;
     }
 }

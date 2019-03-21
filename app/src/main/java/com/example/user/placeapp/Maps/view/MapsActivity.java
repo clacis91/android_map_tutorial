@@ -186,7 +186,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     */
 
     public void getPlaceList(View v) {
-        Intent i = new Intent(MapsActivity.this, ListActivity.class);
+        Intent i = new Intent(MapsActivity.this, MyListActivity.class);
         Log.d("fb_id", fbInfo.getFbId());
         i.putExtra("fb_id", fbInfo.getFbId());
         startActivity(i);

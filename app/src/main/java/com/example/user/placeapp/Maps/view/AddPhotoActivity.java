@@ -1,16 +1,11 @@
 package com.example.user.placeapp.Maps.view;
 
-import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.CursorLoader;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -18,11 +13,9 @@ import android.widget.ImageView;
 
 import com.example.user.placeapp.Maps.AddPhotoContract;
 import com.example.user.placeapp.Maps.presenter.AddPhotoPresenter;
-import com.example.user.placeapp.POJO.sPlaceReview;
+import com.example.user.placeapp.POJO.sPlaceOverview;
 import com.example.user.placeapp.R;
 import com.example.user.placeapp.RealPathUtil;
-
-import java.util.List;
 
 public class AddPhotoActivity extends AppCompatActivity implements AddPhotoContract.View,
                                                                     ActivityCompat.OnRequestPermissionsResultCallback{
@@ -76,9 +69,9 @@ public class AddPhotoActivity extends AppCompatActivity implements AddPhotoContr
     }
 
     @Override
-    public void submitFinished(sPlaceReview placeReview) {
+    public void submitFinished(sPlaceOverview placeOverview) {
         Intent intent = getIntent();
-        intent.putExtra("place_review", placeReview);
+        intent.putExtra("place_overview", placeOverview);
         setResult(RESULT_OK, intent);
         finish();
     }

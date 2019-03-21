@@ -15,17 +15,19 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.example.user.placeapp.Maps.PlaceListContract;
-import com.example.user.placeapp.Maps.presenter.ListPresenter;
+import com.example.user.placeapp.Maps.MyListContract;
+import com.example.user.placeapp.Maps.presenter.MyListPresenter;
 import com.example.user.placeapp.POJO.sPlace;
 import com.example.user.placeapp.R;
 
 import java.util.ArrayList;
 
-public class ListActivity extends AppCompatActivity implements PlaceListContract.View,
+public class MyListActivity extends AppCompatActivity implements MyListContract.View,
                                                                 AdapterView.OnItemClickListener{
-    private ListPresenter presenter;
+    private MyListPresenter presenter;
     private ListviewAdapter adapter;
+
+    private String fbId;
 
     public class Listviewitem {
         private sPlace place;
@@ -37,39 +39,30 @@ public class ListActivity extends AppCompatActivity implements PlaceListContract
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list);
+        setContentView(R.layout.activity_mylist);
 
         Intent intent = getIntent();
-        String fbId = intent.getStringExtra("fb_id");
+        fbId = intent.getStringExtra("fb_id");
 
         Log.d("facebookId", fbId);
 
-        presenter = new ListPresenter(this);
+        presenter = new MyListPresenter(this);
         presenter.getMyplaceList(fbId);
     }
 
     @Override
     public void setMyplaceList(ArrayList<sPlace> places) {
-        ListView listView=(ListView)findViewById(R.id.placeList);
+        ListView listView = (ListView)findViewById(R.id.placeList);
         ArrayList<Listviewitem> listviewitems = new ArrayList<>();
 
         for(sPlace place : places) {
+            Log.d("setMyplaceList", "setMyplaceList: ");
             listviewitems.add(new Listviewitem(place));
         }
 
-        adapter = new ListviewAdapter(this,R.layout.list_content, listviewitems);
+        adapter = new ListviewAdapter(this,R.layout.mylist_content, listviewitems);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(this);
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        TextView poiIdView = view.findViewById(R.id.poiId);
-        String poiId = poiIdView.getText().toString();
-
-        Intent i = new Intent(ListActivity.this, PoiActivity.class);
-        i.putExtra("poi_id", poiId);
-        startActivity(i);
     }
 
     @Override
@@ -77,6 +70,17 @@ public class ListActivity extends AppCompatActivity implements PlaceListContract
         ListView myPlacelistView = (ListView)findViewById(R.id.placeList);
         TextView poiNameView = myPlacelistView.getChildAt(position).findViewById(R.id.poiName);
         poiNameView.setText(poiName);
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        TextView poiIdView = view.findViewById(R.id.poiId);
+        String poiId = poiIdView.getText().toString();
+
+        Intent i = new Intent(MyListActivity.this, PoiActivity.class);
+        i.putExtra("poi_id", poiId);
+        i.putExtra("fb_id", fbId);
+        startActivity(i);
     }
 
     public class ListviewAdapter extends BaseAdapter {

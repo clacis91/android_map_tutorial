@@ -3,10 +3,10 @@ package com.example.user.placeapp.POJO;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
-public class sPlace {
+public class sPlaceWithComment implements Serializable {
     @SerializedName("_id")
     @Expose
     private String _id;
@@ -21,10 +21,14 @@ public class sPlace {
     private ArrayList<String> placePicUrl;
     @SerializedName("comments")
     @Expose
-    private ArrayList<String> comments;
+    private ArrayList<sComment> comments;
 
     public ArrayList<String> getPlacePicUrl() {
         return placePicUrl;
+    }
+
+    public ArrayList<sComment> getComments() {
+        return comments;
     }
 
     public String getpoiId() {
