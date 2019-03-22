@@ -3,7 +3,6 @@ package com.example.user.placeapp.POJO;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class sPlace {
@@ -18,12 +17,12 @@ public class sPlace {
     private String poiId;
     @SerializedName("placePicUrl")
     @Expose
-    private ArrayList<String> placePicUrl;
+    private List<String> placePicUrl = null;
     @SerializedName("comments")
     @Expose
-    private ArrayList<String> comments;
+    private List<String> comments = null;
 
-    public ArrayList<String> getPlacePicUrl() {
+    public List<String> getPlacePicUrl() {
         return placePicUrl;
     }
 

@@ -2,6 +2,8 @@ package com.example.user.placeapp.Maps;
 
 import com.example.user.placeapp.POJO.sPlaceWithComment;
 
+import java.util.HashMap;
+
 public interface AddReviewContract {
 
     interface Presenter {

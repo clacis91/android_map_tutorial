@@ -2,13 +2,9 @@ package com.example.user.placeapp.Maps.presenter;
 
 import android.util.Log;
 
-import com.example.user.placeapp.Maps.AddPhotoContract;
 import com.example.user.placeapp.Maps.AddReviewContract;
 import com.example.user.placeapp.Maps.model.MapServiceModel;
-import com.example.user.placeapp.POJO.sPlaceOverview;
 import com.example.user.placeapp.POJO.sPlaceWithComment;
-
-import java.io.File;
 
 public class AddReviewPresenter implements AddReviewContract.Presenter {
     AddReviewContract.View addReviewView;

@@ -10,10 +10,10 @@ import java.util.List;
 public class sPlaceOverview implements Serializable {
     @SerializedName("placePicUrl")
     @Expose
-    private List<String> placePicUrl = new ArrayList<>();
+    private List<String> placePicUrl = null;
     @SerializedName("comments")
     @Expose
-    private List<String> comments = new ArrayList<>();
+    private List<String> comments = null;
 
     public List<String> getPlacePicUrl() {
         return placePicUrl;

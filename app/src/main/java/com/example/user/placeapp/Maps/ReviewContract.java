@@ -2,7 +2,7 @@ package com.example.user.placeapp.Maps;
 
 import com.example.user.placeapp.POJO.sComment;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public interface ReviewContract {
 
@@ -13,6 +13,6 @@ public interface ReviewContract {
 
     interface View {
 
-        public void setReviewList(ArrayList<sComment> comments);
+        public void setReviewList(List<sComment> comments);
     }
 }

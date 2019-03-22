@@ -3,25 +3,27 @@ package com.example.user.placeapp.POJO;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class sComment {
-    @SerializedName("__v")
-    @Expose
-    private String __v;
+import java.io.Serializable;
+
+public class sComment implements Serializable {
     @SerializedName("_id")
     @Expose
-    private String _id;
+    private String id;
     @SerializedName("poiId")
     @Expose
     private String poiId;
+    @SerializedName("user")
+    @Expose
+    private sUser user;
     @SerializedName("captionTitle")
     @Expose
     private String captionTitle;
     @SerializedName("captionBody")
     @Expose
     private String captionBody;
-    @SerializedName("user")
+    @SerializedName("__v")
     @Expose
-    private sUser user;
+    private Integer v;
 
     public sUser getUser() {
         return user;

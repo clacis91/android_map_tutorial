@@ -4,30 +4,30 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.List;
 
 public class sPlaceWithComment implements Serializable {
+    @SerializedName("placePicUrl")
+    @Expose
+    private List<String> placePicUrl = null;
+    @SerializedName("comments")
+    @Expose
+    private List<sComment> comments = null;
     @SerializedName("_id")
     @Expose
-    private String _id;
-    @SerializedName("__v")
-    @Expose
-    private int __v;
+    private String id;
     @SerializedName("poiId")
     @Expose
     private String poiId;
-    @SerializedName("placePicUrl")
+    @SerializedName("__v")
     @Expose
-    private ArrayList<String> placePicUrl;
-    @SerializedName("comments")
-    @Expose
-    private ArrayList<sComment> comments;
+    private Integer v;
 
-    public ArrayList<String> getPlacePicUrl() {
+    public List<String> getPlacePicUrl() {
         return placePicUrl;
     }
 
-    public ArrayList<sComment> getComments() {
+    public List<sComment> getComments() {
         return comments;
     }
 

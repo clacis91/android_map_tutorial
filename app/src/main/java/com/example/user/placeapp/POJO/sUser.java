@@ -3,15 +3,16 @@ package com.example.user.placeapp.POJO;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.ArrayList;
+import java.io.Serializable;
+import java.util.List;
 
-public class sUser {
-    @SerializedName("__v")
+public class sUser implements Serializable {
+    @SerializedName("places")
     @Expose
-    private String __v;
+    private List<String> places = null;
     @SerializedName("_id")
     @Expose
-    private String _id;
+    private String id;
     @SerializedName("fbId")
     @Expose
     private String fbId;
@@ -21,9 +22,9 @@ public class sUser {
     @SerializedName("name")
     @Expose
     private String name;
-    @SerializedName("places")
+    @SerializedName("__v")
     @Expose
-    private ArrayList<String> places;
+    private Integer v;
 
     public String getUserProfileUrl() {
         return this.userProfileUrl;

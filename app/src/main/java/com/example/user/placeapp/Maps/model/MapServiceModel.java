@@ -20,7 +20,6 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MapServiceModel  {
-    public static Object addPlaceReviewListener;
     private Retrofit.Builder retrofitBuilder = new Retrofit.Builder();
     private Retrofit retrofit = retrofitBuilder.baseUrl("http://52.79.72.47:3000/").addConverterFactory(GsonConverterFactory.create()).build();
 
@@ -143,8 +142,6 @@ public class MapServiceModel  {
     }
 
     public void addPlaceReview(String fbId, String poiId, String commentTitle, String commentBody, final addPlaceReviewListener onFinishedListener) {
-
-
         Call<sPlaceWithComment> call = retrofit.create(RetrofitInterface.class).addReview(
                 new RetrofitInterface.addReviewBody(fbId, poiId, commentTitle, commentBody));
 
@@ -161,6 +158,7 @@ public class MapServiceModel  {
             public void onFailure(Call<sPlaceWithComment> call, Throwable t) {
                 //TODO: onAddPlacePhotoFailure
                 Log.d("addPlaceReview", "fail");
+                t.printStackTrace();
                 Log.d("addPlaceReview", t.getMessage().toString());
             }
         });

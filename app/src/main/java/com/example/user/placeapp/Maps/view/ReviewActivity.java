@@ -86,7 +86,7 @@ public class ReviewActivity extends Fragment implements ReviewContract.View {
     }
 
     @Override
-    public void setReviewList(ArrayList<sComment> comments) {
+    public void setReviewList(List<sComment> comments) {
         ListView listView=(ListView) getView().findViewById(R.id.reviewList);
         ArrayList<Listviewitem> listviewitems = new ArrayList<>();
 

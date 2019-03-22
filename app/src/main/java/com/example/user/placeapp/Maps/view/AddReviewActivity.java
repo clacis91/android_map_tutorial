@@ -7,12 +7,9 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.example.user.placeapp.Maps.AddReviewContract;
-import com.example.user.placeapp.Maps.presenter.AddPhotoPresenter;
 import com.example.user.placeapp.Maps.presenter.AddReviewPresenter;
 import com.example.user.placeapp.POJO.sPlaceWithComment;
 import com.example.user.placeapp.R;
-
-import org.w3c.dom.Text;
 
 public class AddReviewActivity extends AppCompatActivity implements AddReviewContract.View {
     AddReviewPresenter presenter;
